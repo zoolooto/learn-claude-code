@@ -1,0 +1,96 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "s14 Cron 调度器 — 四层解耦流程",
+    "locale": "zh-CN",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    { "id": "tools", "label": "工具注册层" },
+    { "id": "scheduler", "label": "调度线程层" },
+    { "id": "queue", "label": "队列解耦层" },
+    { "id": "agent", "label": "Agent 消费层" }
+  ],
+  "phases": [
+    { "id": "register", "label": "注册", "fromCol": 0, "toCol": 0 },
+    { "id": "fire", "label": "触发", "fromCol": 1, "toCol": 1, "variant": "emphasis" },
+    { "id": "deliver", "label": "投递执行", "fromCol": 2, "toCol": 3, "variant": "dashed" }
+  ],
+  "groups": [
+    { "id": "register_group", "label": "schedule_cron", "lane": "tools", "fromCol": 0, "toCol": 0, "variant": "dashed" },
+    { "id": "scheduler_daemon", "label": "daemon 线程", "lane": "scheduler", "fromCol": 1, "toCol": 1, "variant": "emphasis" },
+    { "id": "queue_bridge", "label": "队列桥接", "lane": "queue", "fromCol": 2, "toCol": 2, "variant": "dashed" },
+    { "id": "agent_turn", "label": "Agent 回合", "lane": "agent", "fromCol": 3, "toCol": 3, "variant": "emphasis" }
+  ],
+  "mainPath": [
+    "register",
+    "scheduler",
+    "queue",
+    "agent"
+  ],
+  "nodes": [
+    {
+      "id": "register",
+      "lane": "tools",
+      "col": 0,
+      "type": "backend",
+      "label": "schedule_job",
+      "sublabel": "validate + 持久化",
+      "width": 140
+    },
+    {
+      "id": "scheduler",
+      "lane": "scheduler",
+      "col": 1,
+      "type": "backend",
+      "label": "cron_scheduler_loop",
+      "sublabel": "1s 轮询 · cron_matches",
+      "width": 140
+    },
+    {
+      "id": "queue",
+      "lane": "queue",
+      "col": 2,
+      "type": "messagebus",
+      "label": "cron_queue",
+      "sublabel": "queue_processor 投递",
+      "width": 140
+    },
+    {
+      "id": "agent",
+      "lane": "agent",
+      "col": 3,
+      "type": "cloud",
+      "label": "agent_loop",
+      "sublabel": "inject → LLM + tools",
+      "width": 140
+    }
+  ],
+  "edges": [
+    {
+      "id": "register-scheduler",
+      "from": "register",
+      "to": "scheduler",
+      "label": "scheduled_jobs",
+      "variant": "default",
+      "role": "main"
+    },
+    {
+      "id": "scheduler-queue",
+      "from": "scheduler",
+      "to": "queue",
+      "label": "cron fire → append",
+      "variant": "emphasis",
+      "role": "main"
+    },
+    {
+      "id": "queue-agent",
+      "from": "queue",
+      "to": "agent",
+      "label": "空闲时 deliver",
+      "variant": "emphasis",
+      "role": "main"
+    }
+  ]
+}

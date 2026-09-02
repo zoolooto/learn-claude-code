@@ -1,0 +1,121 @@
+<svg viewBox="0 0 1000 680" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="s19-title s19-desc" font-family="'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <title id="s19-title">s19: MCP Plugin 外部工具接入与标准协议拓扑图</title>
+  <desc id="s19-desc">展示通过 Model Context Protocol (MCP) 标准 JSON-RPC 协议动态发现 tools/list、命名空间防冲突与统一工具池动态组装的架构全景</desc>
+
+  <style>
+    @keyframes crawlDashes {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: -24; }
+    }
+    @keyframes pulseMcp {
+      0%, 100% { filter: drop-shadow(0 0 0px rgba(235,108,54,0)); }
+      50% { filter: drop-shadow(0 0 10px rgba(235,108,54,0.45)); }
+    }
+    .active-flow {
+      stroke-dasharray: 6 4;
+      animation: crawlDashes 1.2s linear infinite;
+    }
+    .mcp-hub {
+      animation: pulseMcp 2.5s ease-in-out infinite;
+    }
+  </style>
+
+  <defs>
+    <pattern id="grid-dots" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="0.85" fill="rgba(45,49,66,0.12)"/>
+    </pattern>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+    </marker>
+    <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/>
+    </marker>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="100%" height="100%" fill="#f5f5f5" rx="8"/>
+  <rect width="100%" height="100%" fill="url(#grid-dots)" opacity="0.6"/>
+
+  <!-- ==================== 1. 顶部：MCP 动态发现与组装中枢 ==================== -->
+  <g id="mcp-hub" class="mcp-hub">
+    <rect x="50" y="30" width="900" height="120" rx="8" fill="#ffffff" stroke="#eb6c36" stroke-width="1.6"/>
+    <rect x="50" y="30" width="900" height="34" rx="8" fill="rgba(235,108,54,0.12)"/>
+    <rect x="50" y="52" width="900" height="12" fill="rgba(235,108,54,0.12)"/>
+    <text x="70" y="52" fill="#eb6c36" font-size="12" font-weight="700">MCP 工具池组装中枢 (assemble_tool_pool &amp; connect_mcp)</text>
+    <text x="740" y="52" fill="#eb6c36" font-size="8.5" font-family="'Geist Mono', monospace">Model Context Protocol</text>
+
+    <text x="70" y="85" fill="#2d3142" font-size="10.5" font-weight="600">标准协议契约：1. tools/list (动态发现能力) ──► 2. tools/call (标准参数调用)</text>
+    <text x="70" y="105" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace">命名空间防冲突机制：mcp__{server_name}__{tool_name} (例如: mcp__jira__create_issue)</text>
+    <text x="70" y="125" fill="#166534" font-size="8.5" font-weight="600">🚀 无需手写硬编码适配器，任何语言编写的外部服务插拔即用！</text>
+  </g>
+
+
+  <!-- ==================== 2. 左侧：内置原生工具箱 (Native Tools) ==================== -->
+  <rect x="50" y="180" width="430" height="470" rx="8" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+  <rect x="50" y="180" width="430" height="36" rx="8" fill="#ececec"/>
+  <rect x="50" y="204" width="430" height="12" fill="#ececec"/>
+  <text x="70" y="203" fill="#2d3142" font-size="12" font-weight="700">内置原生工具集 (Built-in Native Tools)</text>
+  <text x="350" y="203" fill="#7a8399" font-size="8.5" font-family="'Geist Mono', monospace">Core Tools</text>
+
+  <!-- 原生工具列表 -->
+  <rect x="70" y="235" width="390" height="55" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)"/>
+  <text x="85" y="258" fill="#2d3142" font-size="10.5" font-weight="600">💻 bash / read_file / write_file / edit_file</text>
+  <text x="85" y="276" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace">基础系统命令执行与文件原子操作</text>
+
+  <rect x="70" y="305" width="390" height="55" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)"/>
+  <text x="85" y="328" fill="#2d3142" font-size="10.5" font-weight="600">📋 Task &amp; Worktree Tools</text>
+  <text x="85" y="346" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace">create_task, task_claim, create_worktree</text>
+
+  <rect x="70" y="375" width="390" height="55" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)"/>
+  <text x="85" y="398" fill="#2d3142" font-size="10.5" font-weight="600">🔌 connect_mcp (新扩展入口)</text>
+  <text x="85" y="416" fill="#eb6c36" font-size="8" font-family="'Geist Mono', monospace">运行时连接指定外部 MCP Server</text>
+
+  <rect x="70" y="445" width="390" height="185" rx="6" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.1)"/>
+  <text x="85" y="470" fill="#2d3142" font-size="10" font-weight="700">原生工具的边界与局限：</text>
+  <text x="85" y="495" fill="#4f5d75" font-size="8.5">• 无法覆盖企业自建系统（如 Jira、内部发布平台）</text>
+  <text x="85" y="520" fill="#4f5d75" font-size="8.5">• 每次新增外部 API 都要修改 Python 源码</text>
+  <text x="85" y="545" fill="#4f5d75" font-size="8.5">• 跨语言调用极其繁琐脆弱</text>
+  <text x="85" y="580" fill="#eb6c36" font-size="9" font-weight="600">──► 统一收口至 MCP 标准协议解决！</text>
+
+
+  <!-- ==================== 3. 右侧：外部 MCP Servers 生态 ==================== -->
+  <rect x="520" y="180" width="430" height="470" rx="8" fill="#ffffff" stroke="#2e5aa8" stroke-width="1.4"/>
+  <rect x="520" y="180" width="430" height="36" rx="8" fill="rgba(46,90,168,0.08)"/>
+  <rect x="520" y="204" width="430" height="12" fill="rgba(46,90,168,0.08)"/>
+  <text x="540" y="203" fill="#2e5aa8" font-size="12" font-weight="700">外部 MCP Servers (JSON-RPC over stdio/SSE)</text>
+  <text x="820" y="203" fill="#2e5aa8" font-size="8.5" font-family="'Geist Mono', monospace">Standard Ecosystem</text>
+
+  <!-- Server 1: Jira -->
+  <rect x="540" y="235" width="390" height="85" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)"/>
+  <text x="555" y="258" fill="#2e5aa8" font-size="10.5" font-weight="700">1. Jira MCP Server (项目缺陷管理)</text>
+  <text x="555" y="278" fill="#eb6c36" font-size="8.5" font-family="'Geist Mono', monospace">mcp__jira__create_issue(project, summary)</text>
+  <text x="555" y="296" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace">mcp__jira__get_sprint_status(sprint_id)</text>
+
+  <!-- Server 2: CI/CD -->
+  <rect x="540" y="335" width="390" height="85" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)"/>
+  <text x="555" y="358" fill="#166534" font-size="10.5" font-weight="700">2. Deploy MCP Server (发布与部署中台)</text>
+  <text x="555" y="378" fill="#eb6c36" font-size="8.5" font-family="'Geist Mono', monospace">mcp__deploy__trigger_pipeline(branch, env)</text>
+  <text x="555" y="396" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace">mcp__deploy__fetch_canary_metrics(app_id)</text>
+
+  <!-- Server 3: Notion / Knowledge -->
+  <rect x="540" y="435" width="390" height="85" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)"/>
+  <text x="555" y="458" fill="#2d3142" font-size="10.5" font-weight="700">3. Knowledge MCP Server (团队知识库)</text>
+  <text x="555" y="478" fill="#eb6c36" font-size="8.5" font-family="'Geist Mono', monospace">mcp__knowledge__search_docs(query)</text>
+  <text x="555" y="496" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace">mcp__knowledge__append_note(page_id, text)</text>
+
+  <!-- 底部汇总 -->
+  <rect x="540" y="535" width="390" height="95" rx="6" fill="rgba(22,163,74,0.04)" stroke="#16a34a" stroke-width="1.2"/>
+  <text x="555" y="560" fill="#166534" font-size="10.5" font-weight="700">统一工具池组装结果：</text>
+  <text x="555" y="582" fill="#2d3142" font-size="8.5">TOTAL_TOOLS = Native_Tools + All_MCP_Tools</text>
+  <text x="555" y="605" fill="#166534" font-size="8.5" font-weight="600">✓ 模型在统一的 Dispatch Map 中享受无限扩展能力！</text>
+
+
+  <!-- ==================== 4. 连线体系 ==================== -->
+  <path class="active-flow" d="M 520 280 L 460 280 L 460 150" fill="none" stroke="#eb6c36" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+  <path class="active-flow" d="M 520 380 L 490 380 L 490 150" fill="none" stroke="#2e5aa8" stroke-width="1.6" marker-end="url(#arrow-blue)"/>
+  <path class="active-flow" d="M 520 480 L 505 480 L 505 150" fill="none" stroke="#4f5d75" stroke-width="1.4" marker-end="url(#arrow)"/>
+
+</svg>

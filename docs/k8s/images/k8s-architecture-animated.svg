@@ -1,0 +1,253 @@
+<svg viewBox="0 0 1120 800" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="k8s-arch-title k8s-arch-desc" font-family="'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <title id="k8s-arch-title">Kubernetes 完整架构与核心模块拓扑图</title>
+  <desc id="k8s-arch-desc">展示 Kubernetes 控制平面（Control Plane / Master）与工作节点（Worker Node）核心组件交互、CRI/CNI/CSI 插件驱动与声明式调谐循环全景</desc>
+
+  <style>
+    @keyframes crawlDashes {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: -24; }
+    }
+    @keyframes pulseApiServer {
+      0%, 100% { filter: drop-shadow(0 0 0px rgba(235,108,54,0)); }
+      50% { filter: drop-shadow(0 0 12px rgba(235,108,54,0.45)); }
+    }
+    @keyframes pulseEtcd {
+      0%, 100% { filter: drop-shadow(0 0 0px rgba(46,90,168,0)); }
+      50% { filter: drop-shadow(0 0 8px rgba(46,90,168,0.35)); }
+    }
+    .active-flow {
+      stroke-dasharray: 6 4;
+      animation: crawlDashes 1.2s linear infinite;
+    }
+    .apiserver-glow {
+      animation: pulseApiServer 2.5s ease-in-out infinite;
+    }
+    .etcd-glow {
+      animation: pulseEtcd 3s ease-in-out infinite;
+    }
+  </style>
+
+  <defs>
+    <!-- 点阵背景 -->
+    <pattern id="grid-dots" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="0.85" fill="rgba(45,49,66,0.12)"/>
+    </pattern>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+    </marker>
+    <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#16a34a"/>
+    </marker>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="100%" height="100%" fill="#f5f5f5" rx="8"/>
+  <rect width="100%" height="100%" fill="url(#grid-dots)" opacity="0.6"/>
+
+  <!-- ==================== 顶部：客户端入口 (kubectl / UI / CI-CD) ==================== -->
+  <g id="top-clients">
+    <rect x="360" y="25" width="400" height="48" rx="24" fill="#ffffff" stroke="#2d3142" stroke-width="1.4"/>
+    <text x="560" y="47" fill="#2d3142" font-size="12" font-weight="700" text-anchor="middle">客户端与外部生态 (kubectl / Dashboard / CI-CD / SDK)</text>
+    <text x="560" y="62" fill="#7a8399" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">HTTPS REST API · YAML / JSON 声明式资源清单</text>
+  </g>
+
+  <!-- 客户端到 APIServer 连线 -->
+  <line class="active-flow" x1="560" y1="73" x2="560" y2="120" stroke="#eb6c36" stroke-width="1.8" marker-end="url(#arrow-accent)"/>
+
+
+  <!-- ==================== 控制平面 (Control Plane / Master) ==================== -->
+  <g id="control-plane">
+    <!-- 控制平面大容器 -->
+    <rect x="30" y="110" width="510" height="660" rx="12" fill="#ffffff" stroke="#2d3142" stroke-width="1.4"/>
+    <rect x="30" y="110" width="510" height="42" rx="12" fill="#ececec"/>
+    <rect x="30" y="140" width="510" height="12" fill="#ececec"/>
+    <text x="50" y="136" fill="#2d3142" font-size="13" font-weight="700">控制平面 (Control Plane / Master Node)</text>
+    <text x="380" y="136" fill="#eb6c36" font-size="9" font-family="'Geist Mono', monospace">集群神经中枢与决策大脑</text>
+
+    <!-- 1. kube-apiserver (核心焦点枢纽) -->
+    <g class="apiserver-glow">
+      <rect x="50" y="165" width="470" height="95" rx="8" fill="#ffffff" stroke="#eb6c36" stroke-width="2"/>
+      <rect x="62" y="157" width="130" height="16" rx="2" fill="#eb6c36"/>
+      <text x="127" y="168" fill="#ffffff" font-size="7.5" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle">GATEWAY &amp; HUB</text>
+      <text x="70" y="192" fill="#eb6c36" font-size="13" font-weight="700">kube-apiserver (集群统一网关与唯一入口)</text>
+      <text x="70" y="212" fill="#2d3142" font-size="9.5">1. 认证 (AuthN) → 2. 鉴权 (AuthZ/RBAC) → 3. 准入控制 (Admission Webhook)</text>
+      <text x="70" y="230" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace">★ 唯一与 etcd 直接交互的组件；所有组件均通过 Watch 机制监听它</text>
+      <text x="70" y="246" fill="#16a34a" font-size="8.5" font-family="'Geist Mono', monospace">无状态设计 · 支持多实例水平负载均衡</text>
+    </g>
+
+    <!-- 2. etcd (持久化存储) -->
+    <g class="etcd-glow">
+      <rect x="50" y="285" width="470" height="85" rx="8" fill="rgba(46,90,168,0.04)" stroke="#2e5aa8" stroke-width="1.4"/>
+      <rect x="62" y="277" width="120" height="16" rx="2" fill="#2e5aa8"/>
+      <text x="122" y="288" fill="#ffffff" font-size="7.5" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle">SINGLE TRUTH STORE</text>
+      <text x="70" y="310" fill="#2e5aa8" font-size="12" font-weight="700">etcd (高可用分布式强一致键值数据库)</text>
+      <text x="70" y="330" fill="#2d3142" font-size="9.5">基于 Raft 共识协议 · 存储集群全部元数据与期望状态 (Desired State)</text>
+      <text x="70" y="348" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace">MVCC 多版本并发控制 · 事件变更监听 (Watch API) · 分布式锁支持</text>
+    </g>
+
+    <!-- 3. kube-scheduler (调度大脑) -->
+    <rect x="50" y="395" width="470" height="85" rx="8" fill="#f8f9fa" stroke="#4f5d75" stroke-width="1.2"/>
+    <rect x="62" y="387" width="105" height="16" rx="2" fill="#ececec" stroke="#4f5d75" stroke-width="0.8"/>
+    <text x="114" y="398" fill="#2d3142" font-size="7.5" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle">SCHEDULING ENGINE</text>
+    <text x="70" y="420" fill="#2d3142" font-size="12" font-weight="700">kube-scheduler (智能调度引擎)</text>
+    <text x="70" y="440" fill="#4f5d75" font-size="9.5">为未绑定的 Pod 寻找最优 Node 节点：两阶段算法</text>
+    <text x="70" y="458" fill="#2d3142" font-size="8.5" font-family="'Geist Mono', monospace">① 预选 (Filtering/Predicates): 过滤资源不足、端口冲突、污点不匹配节点</text>
+    <text x="70" y="472" fill="#2d3142" font-size="8.5" font-family="'Geist Mono', monospace">② 优选 (Scoring/Priorities): 节点负载均衡、亲和性/反亲和性打分</text>
+
+    <!-- 4. kube-controller-manager (自动化调谐控制循环) -->
+    <rect x="50" y="505" width="470" height="145" rx="8" fill="#f8f9fa" stroke="#4f5d75" stroke-width="1.2"/>
+    <rect x="62" y="497" width="150" height="16" rx="2" fill="#ececec" stroke="#4f5d75" stroke-width="0.8"/>
+    <text x="137" y="508" fill="#2d3142" font-size="7.5" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle">RECONCILIATION LOOPS</text>
+    <text x="70" y="530" fill="#2d3142" font-size="12" font-weight="700">kube-controller-manager (控制器集群 · 自动化调谐中枢)</text>
+    <text x="70" y="548" fill="#4f5d75" font-size="9">运行数十个并发 Controller，执行永不停止的“实际状态 vs 期望状态”调谐循环：</text>
+    
+    <!-- 内嵌小控制器 -->
+    <rect x="65" y="558" width="195" height="36" rx="4" fill="#ffffff" stroke="rgba(45,49,66,0.15)"/>
+    <text x="75" y="573" fill="#2d3142" font-size="8.5" font-weight="600">Deployment / RS Controller</text>
+    <text x="75" y="586" fill="#7a8399" font-size="7.5" font-family="'Geist Mono', monospace">副本数维护与滚动更新</text>
+
+    <rect x="270" y="558" width="235" height="36" rx="4" fill="#ffffff" stroke="rgba(45,49,66,0.15)"/>
+    <text x="280" y="573" fill="#2d3142" font-size="8.5" font-weight="600">Node Controller</text>
+    <text x="280" y="586" fill="#7a8399" font-size="7.5" font-family="'Geist Mono', monospace">节点心跳监控、失联驱逐</text>
+
+    <rect x="65" y="600" width="195" height="36" rx="4" fill="#ffffff" stroke="rgba(45,49,66,0.15)"/>
+    <text x="75" y="615" fill="#2d3142" font-size="8.5" font-weight="600">EndpointSlice Controller</text>
+    <text x="75" y="628" fill="#7a8399" font-size="7.5" font-family="'Geist Mono', monospace">Service 与 Pod IP 映射维护</text>
+
+    <rect x="270" y="600" width="235" height="36" rx="4" fill="#ffffff" stroke="rgba(45,49,66,0.15)"/>
+    <text x="280" y="615" fill="#2d3142" font-size="8.5" font-weight="600">Job / StatefulSet / Namespace ...</text>
+    <text x="280" y="628" fill="#7a8399" font-size="7.5" font-family="'Geist Mono', monospace">各种资源生命周期自动管控</text>
+
+    <!-- 5. cloud-controller-manager (云对接) -->
+    <rect x="50" y="670" width="470" height="42" rx="6" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.15)"/>
+    <text x="70" y="688" fill="#2d3142" font-size="9.5" font-weight="600">cloud-controller-manager (可选 · 对接 AWS / 阿里云 / 腾讯云底座)</text>
+    <text x="70" y="702" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace">自动创建云负载均衡器 (LoadBalancer Service)、挂载云盘存储卷 (EBS/云硬盘)</text>
+  </g>
+
+  <!-- 控制平面内部流动连线 -->
+  <!-- apiserver <-> etcd -->
+  <path class="active-flow" d="M 285 260 L 285 285" fill="none" stroke="#2e5aa8" stroke-width="1.8" marker-end="url(#arrow-blue)"/>
+  <!-- apiserver <-> scheduler -->
+  <path class="active-flow" d="M 120 260 L 120 395" fill="none" stroke="#4f5d75" stroke-width="1.4" marker-end="url(#arrow)"/>
+  <!-- apiserver <-> controller-manager -->
+  <path class="active-flow" d="M 450 260 L 450 505" fill="none" stroke="#4f5d75" stroke-width="1.4" marker-end="url(#arrow)"/>
+
+
+  <!-- ==================== 工作节点 (Worker Node) ==================== -->
+  <g id="worker-nodes">
+    <!-- Worker Node 1 容器 -->
+    <rect x="580" y="110" width="510" height="660" rx="12" fill="#ffffff" stroke="#2d3142" stroke-width="1.4"/>
+    <rect x="580" y="110" width="510" height="42" rx="12" fill="#ececec"/>
+    <rect x="580" y="140" width="510" height="12" fill="#ececec"/>
+    <text x="600" y="136" fill="#2d3142" font-size="13" font-weight="700">工作节点 (Worker Node · 业务负载实际运行地)</text>
+    <text x="960" y="136" fill="#16a34a" font-size="9" font-family="'Geist Mono', monospace">Node Agent + Pods</text>
+
+    <!-- 1. kubelet (节点指挥官) -->
+    <rect x="600" y="165" width="225" height="110" rx="8" fill="#ffffff" stroke="#eb6c36" stroke-width="1.6"/>
+    <rect x="612" y="157" width="90" height="16" rx="2" fill="#eb6c36"/>
+    <text x="657" y="168" fill="#ffffff" font-size="7.5" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle">NODE AGENT</text>
+    <text x="615" y="190" fill="#eb6c36" font-size="12" font-weight="700">kubelet (节点代理中枢)</text>
+    <text x="615" y="208" fill="#2d3142" font-size="8.5">• 与 apiserver 保持心跳与同步</text>
+    <text x="615" y="224" fill="#2d3142" font-size="8.5">• 驱动 CRI / CNI / CSI 创建 Pod</text>
+    <text x="615" y="240" fill="#2d3142" font-size="8.5">• 执行健康检查探针 (Liveness/Readiness)</text>
+    <text x="615" y="256" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace">维护本节点 Pod 处于期望状态</text>
+
+    <!-- 2. kube-proxy (网络代理与路由转发) -->
+    <rect x="845" y="165" width="225" height="110" rx="8" fill="#ffffff" stroke="#4f5d75" stroke-width="1.2"/>
+    <rect x="857" y="157" width="105" height="16" rx="2" fill="#ececec" stroke="#4f5d75" stroke-width="0.8"/>
+    <text x="909" y="168" fill="#2d3142" font-size="7.5" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle">NETWORK PROXY</text>
+    <text x="860" y="190" fill="#2d3142" font-size="12" font-weight="700">kube-proxy (网络路由代理)</text>
+    <text x="860" y="208" fill="#2d3142" font-size="8.5">• 监听 Service 与 EndpointSlice</text>
+    <text x="860" y="224" fill="#2d3142" font-size="8.5">• 编程内核转发规则实现四层负载均衡</text>
+    <text x="860" y="240" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace">• 模式: iptables / IPVS / eBPF</text>
+    <text x="860" y="256" fill="#16a34a" font-size="8" font-family="'Geist Mono', monospace">为 Pod 提供稳定 ClusterIP 虚IP访问</text>
+
+    <!-- 3. 三大标准接口层 (CRI / CNI / CSI) -->
+    <g id="node-plugins">
+      <rect x="600" y="295" width="470" height="90" rx="8" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)"/>
+      <text x="615" y="315" fill="#2d3142" font-size="10.5" font-weight="700">三大标准插件接口 (K8s 极强扩展性的根基)</text>
+      
+      <!-- CRI -->
+      <rect x="615" y="325" width="140" height="50" rx="4" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="625" y="343" fill="#2d3142" font-size="9" font-weight="600">CRI 容器运行时</text>
+      <text x="625" y="357" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace">containerd / CRI-O</text>
+      <text x="625" y="369" fill="#7a8399" font-size="7.5">runc · Linux cgroups/ns</text>
+
+      <!-- CNI -->
+      <rect x="765" y="325" width="140" height="50" rx="4" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="775" y="343" fill="#2d3142" font-size="9" font-weight="600">CNI 容器网络插件</text>
+      <text x="775" y="357" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace">Calico / Flannel / Cilium</text>
+      <text x="775" y="369" fill="#7a8399" font-size="7.5">Pod IP 分配 · 跨节点互通</text>
+
+      <!-- CSI -->
+      <rect x="915" y="325" width="140" height="50" rx="4" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="925" y="343" fill="#2d3142" font-size="9" font-weight="600">CSI 容器存储插件</text>
+      <text x="925" y="357" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace">Ceph / NFS / EBS / 本地盘</text>
+      <text x="925" y="369" fill="#7a8399" font-size="7.5">PV/PVC 卷挂载与格式化</text>
+    </g>
+
+    <!-- 4. 运行中的 Pod 实例结构 (Pod Deep Dive) -->
+    <g id="pods-running">
+      <rect x="600" y="405" width="470" height="335" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="1.4"/>
+      <rect x="600" y="405" width="470" height="30" rx="8" fill="rgba(22,163,74,0.08)"/>
+      <text x="615" y="425" fill="#166534" font-size="11" font-weight="700">Pod 实例内部结构 (K8s 最小调度单元)</text>
+      <text x="920" y="425" fill="#166534" font-size="8.5" font-family="'Geist Mono', monospace">Pod IP: 10.244.1.45</text>
+
+      <!-- Pause 容器 (Infra Container) -->
+      <rect x="620" y="445" width="430" height="50" rx="6" fill="#f8f9fa" stroke="#4f5d75" stroke-width="1"/>
+      <text x="635" y="465" fill="#2d3142" font-size="9.5" font-weight="700">Pause 容器 (Infra Container · 整个 Pod 的网络与命名空间锚点)</text>
+      <text x="635" y="482" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace">创建 Network Namespace、持住 Pod IP 与端口，Pod 内所有业务容器共享该网络栈</text>
+
+      <!-- 业务容器 1: App Container -->
+      <rect x="620" y="505" width="205" height="130" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+      <text x="635" y="525" fill="#2d3142" font-size="10" font-weight="700">主应用容器 (App Container)</text>
+      <text x="635" y="542" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace">Image: nginx:1.25</text>
+      <text x="635" y="560" fill="#2d3142" font-size="8.5">• 监听 localhost:80</text>
+      <text x="635" y="578" fill="#2d3142" font-size="8.5">• 挂载业务数据卷 Volume</text>
+      <text x="635" y="596" fill="#2d3142" font-size="8.5">• 读取 ConfigMap / Secret 注入</text>
+      <text x="635" y="618" fill="#16a34a" font-size="8" font-weight="600">Running (Health: OK)</text>
+
+      <!-- 业务容器 2: Sidecar Container -->
+      <rect x="845" y="505" width="205" height="130" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+      <text x="860" y="525" fill="#2d3142" font-size="10" font-weight="700">边车容器 (Sidecar Container)</text>
+      <text x="860" y="542" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace">Image: fluent-bit / envoy</text>
+      <text x="860" y="560" fill="#2d3142" font-size="8.5">• 收集主容器本地日志</text>
+      <text x="860" y="578" fill="#2d3142" font-size="8.5">• 服务网格流量劫持代理</text>
+      <text x="860" y="596" fill="#2d3142" font-size="8.5">• 共享 localhost 及卷数据</text>
+      <text x="860" y="618" fill="#16a34a" font-size="8" font-weight="600">Running (Sidecar)</text>
+
+      <!-- 共享卷 Volume -->
+      <rect x="620" y="645" width="430" height="42" rx="4" fill="rgba(46,90,168,0.05)" stroke="#2e5aa8" stroke-width="1"/>
+      <text x="635" y="663" fill="#2e5aa8" font-size="9" font-weight="700">共享存储卷 (Shared Volumes · EmptyDir / PVC 挂载)</text>
+      <text x="635" y="677" fill="#7a8399" font-size="7.5" font-family="'Geist Mono', monospace">Pod 内各容器通过共享卷实现无缝高效文件与 Socket 交互</text>
+
+      <!-- 健康检查探针 -->
+      <rect x="620" y="695" width="430" height="35" rx="4" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)"/>
+      <text x="635" y="710" fill="#2d3142" font-size="8.5" font-weight="600">三类健康检查探针 (Kubelet 定期执行):</text>
+      <text x="635" y="722" fill="#7a8399" font-size="7.5" font-family="'Geist Mono', monospace">1. StartupProbe (启动探测)  2. LivenessProbe (存活探测)  3. ReadinessProbe (就绪探测)</text>
+    </g>
+  </g>
+
+  <!-- ==================== 跨平面控制与数据流箭头 ==================== -->
+  
+  <!-- APIServer -> Kubelet (Watch & Sync) -->
+  <path class="active-flow" d="M 520 210 L 600 210" fill="none" stroke="#eb6c36" stroke-width="1.8" marker-end="url(#arrow-accent)"/>
+  <rect x="532" y="195" width="56" height="16" rx="2" fill="#ffffff" stroke="#eb6c36" stroke-width="0.8"/>
+  <text x="560" y="206" fill="#eb6c36" font-size="7.5" font-family="'Geist Mono', monospace" text-anchor="middle">Watch</text>
+
+  <!-- APIServer -> kube-proxy (Endpoints Watch) -->
+  <path class="active-flow" d="M 520 235 L 560 235 L 560 175 L 845 175" fill="none" stroke="#4f5d75" stroke-width="1.4" marker-end="url(#arrow)"/>
+  <rect x="670" y="165" width="80" height="16" rx="2" fill="#ffffff" stroke="#4f5d75" stroke-width="0.8"/>
+  <text x="710" y="176" fill="#4f5d75" font-size="7.5" font-family="'Geist Mono', monospace" text-anchor="middle">Sync Services</text>
+
+  <!-- Kubelet -> CRI -> Pod 驱动连线 -->
+  <path class="active-flow" d="M 712 275 L 712 325" fill="none" stroke="#eb6c36" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+  <path class="active-flow" d="M 685 375 L 685 445" fill="none" stroke="#16a34a" stroke-width="1.6" marker-end="url(#arrow-green)"/>
+
+</svg>

@@ -1,0 +1,113 @@
+<svg viewBox="0 0 1000 680" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="s07-title s07-desc" font-family="'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <title id="s07-title">s07: Skill 技能渐进式加载拓扑图</title>
+  <desc id="s07-desc">展示技能从本地扫描、System 目录轻量注入、运行时按需抓取到完整规范生效的两层暴露模型</desc>
+
+  <style>
+    @keyframes crawlDashes {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: -24; }
+    }
+    @keyframes pulseSkill {
+      0%, 100% { filter: drop-shadow(0 0 0px rgba(235,108,54,0)); }
+      50% { filter: drop-shadow(0 0 8px rgba(235,108,54,0.45)); }
+    }
+    .active-flow {
+      stroke-dasharray: 6 4;
+      animation: crawlDashes 1.2s linear infinite;
+    }
+    .skill-focal {
+      animation: pulseSkill 2.5s ease-in-out infinite;
+    }
+  </style>
+
+  <defs>
+    <pattern id="grid-dots" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="0.85" fill="rgba(45,49,66,0.12)"/>
+    </pattern>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+    </marker>
+    <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/>
+    </marker>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="100%" height="100%" fill="#f5f5f5" rx="8"/>
+  <rect width="100%" height="100%" fill="url(#grid-dots)" opacity="0.6"/>
+
+  <!-- ==================== 1. 左侧：本地技能库与轻量扫描 ==================== -->
+  <rect x="40" y="30" width="400" height="270" rx="8" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+  <rect x="40" y="30" width="400" height="38" rx="8" fill="#ececec"/>
+  <rect x="40" y="56" width="400" height="12" fill="#ececec"/>
+  <text x="55" y="54" fill="#2d3142" font-size="12" font-weight="700">本地技能目录 (skills/ 仓库)</text>
+
+  <!-- 技能列表项 -->
+  <rect x="55" y="80" width="370" height="42" rx="4" fill="#f8f9fa" stroke="rgba(45,49,66,0.1)"/>
+  <text x="70" y="98" fill="#2d3142" font-size="10.5" font-weight="600">📁 skills/diagram-design/SKILL.md</text>
+  <text x="70" y="112" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace">description: 28 种出版级专业图表设计规范</text>
+
+  <rect x="55" y="130" width="370" height="42" rx="4" fill="#f8f9fa" stroke="rgba(45,49,66,0.1)"/>
+  <text x="70" y="148" fill="#2d3142" font-size="10.5" font-weight="600">📁 skills/code-review/SKILL.md</text>
+  <text x="70" y="162" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace">description: Standards 与 Spec 双轴代码审查</text>
+
+  <rect x="55" y="180" width="370" height="42" rx="4" fill="#f8f9fa" stroke="rgba(45,49,66,0.1)"/>
+  <text x="70" y="198" fill="#2d3142" font-size="10.5" font-weight="600">📁 skills/tdd/SKILL.md</text>
+  <text x="70" y="212" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace">description: 红绿重构测试驱动开发实操规范</text>
+
+  <text x="55" y="250" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">⚙️ 扫描提取：仅解析 YAML Frontmatter 头部元数据</text>
+
+
+  <!-- ==================== 2. 右侧上方：第 1 层 System 目录注入 ==================== -->
+  <rect x="520" y="30" width="440" height="270" rx="8" fill="#ffffff" stroke="#4f5d75" stroke-width="1.2"/>
+  <rect x="520" y="30" width="440" height="38" rx="8" fill="#ececec"/>
+  <rect x="520" y="56" width="440" height="12" fill="#ececec"/>
+  <text x="535" y="54" fill="#2d3142" font-size="12" font-weight="700">第 1 层：常驻 System Prompt (轻量索引)</text>
+  <text x="820" y="54" fill="#16a34a" font-size="8.5" font-family="'Geist Mono', monospace">~100 Tokens / 轮</text>
+
+  <rect x="535" y="80" width="410" height="150" rx="4" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.1)"/>
+  <text x="548" y="102" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">You have access to specialized skills:</text>
+  <text x="548" y="122" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">- `diagram-design`: 28 visual types editorial diagrams</text>
+  <text x="548" y="142" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">- `code-review`: Standards &amp; Spec dual-axis review</text>
+  <text x="548" y="162" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace">- `tdd`: Red-Green-Refactor test first workflow</text>
+  <text x="548" y="195" fill="#eb6c36" font-size="9" font-weight="600" font-family="'Geist Mono', monospace">Call load_skill(name) when you need full instructions.</text>
+
+  <text x="535" y="255" fill="#7a8399" font-size="8.5">💡 模型具备全局可用技能意识，但每轮仅消耗极小 Token 成本！</text>
+
+  <!-- 扫描提取 -> System 连线 -->
+  <path class="active-flow" d="M 440 160 L 520 160" fill="none" stroke="#4f5d75" stroke-width="1.4" marker-end="url(#arrow)"/>
+  <rect x="450" y="145" width="60" height="16" rx="2" fill="#ffffff" stroke="rgba(45,49,66,0.15)"/>
+  <text x="480" y="156" fill="#4f5d75" font-size="7.5" font-family="'Geist Mono', monospace" text-anchor="middle">_scan()</text>
+
+
+  <!-- ==================== 3. 下方：第 2 层 运行时按需调用与注入 ==================== -->
+  <rect x="40" y="340" width="920" height="310" rx="8" fill="#ffffff" stroke="#eb6c36" stroke-width="1.6" class="skill-focal"/>
+  <rect x="40" y="340" width="920" height="38" rx="8" fill="rgba(235,108,54,0.12)"/>
+  <rect x="40" y="366" width="920" height="12" fill="rgba(235,108,54,0.12)"/>
+  <text x="55" y="364" fill="#eb6c36" font-size="12" font-weight="700">第 2 层：运行时按需抓取完整规范 (tool_result 动态注入)</text>
+  <text x="780" y="364" fill="#eb6c36" font-size="8.5" font-family="'Geist Mono', monospace">~2,000 Tokens (用时才花)</text>
+
+  <!-- 左侧：模型触发调用 -->
+  <rect x="65" y="395" width="370" height="60" rx="6" fill="#f8f9fa" stroke="#eb6c36" stroke-width="1.2"/>
+  <text x="80" y="418" fill="#2d3142" font-size="11" font-weight="600">模型判定当前任务需要画图：</text>
+  <text x="80" y="438" fill="#eb6c36" font-size="9.5" font-family="'Geist Mono', monospace">load_skill(name="diagram-design")</text>
+
+  <!-- 触发连线 (System 下探至调用) -->
+  <path class="active-flow" d="M 740 300 L 740 325 L 250 325 L 250 395" fill="none" stroke="#eb6c36" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+
+  <!-- 右侧：完整技能注入 tool_result -->
+  <rect x="490" y="395" width="445" height="230" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)"/>
+  <text x="505" y="418" fill="#16a34a" font-size="11" font-weight="600">tool_result 注入完整实操规范：</text>
+  <text x="505" y="440" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace">&lt;skill_content name="diagram-design"&gt;</text>
+  <text x="520" y="460" fill="#2d3142" font-size="8" font-family="'Geist Mono', monospace"># Diagram Design</text>
+  <text x="520" y="478" fill="#2d3142" font-size="8" font-family="'Geist Mono', monospace">- 28 种视觉类型排版规范 (Architecture, Sequence...)</text>
+  <text x="520" y="496" fill="#2d3142" font-size="8" font-family="'Geist Mono', monospace">- 配色令牌与反转规则 (paper, ink, accent #eb6c36)</text>
+  <text x="520" y="514" fill="#2d3142" font-size="8" font-family="'Geist Mono', monospace">- 字体栈：Instrument Serif + Geist + Geist Mono</text>
+  <text x="520" y="532" fill="#2d3142" font-size="8" font-family="'Geist Mono', monospace">- 可选动效规则与 self_check.py 自检命令</text>
+  <text x="505" y="560" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace">&lt;/skill_content&gt;</text>
+  <text x="505" y="590" fill="#eb6c36" font-size="8.5" font-weight="600">🚀 模型在下一轮直接吸收专业规范，产出高质量交付物！</text>
+
+  <!-- 调用到结果注入连线 -->
+  <line class="active-flow" x1="435" y1="425" x2="490" y2="425" stroke="#eb6c36" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+
+</svg>

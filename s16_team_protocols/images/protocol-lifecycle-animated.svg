@@ -1,0 +1,125 @@
+<svg viewBox="0 0 1000 680" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="s16-title s16-desc" font-family="'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <title id="s16-title">s16: Team Protocols 结构化握手与审批协议拓扑图</title>
+  <desc id="s16-desc">展示基于 request_id 关联、状态机（pending -> approved/rejected）的优雅关机握手与高危计划审批双协议架构</desc>
+
+  <style>
+    @keyframes crawlDashes {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: -24; }
+    }
+    @keyframes pulseProtocol {
+      0%, 100% { filter: drop-shadow(0 0 0px rgba(235,108,54,0)); }
+      50% { filter: drop-shadow(0 0 10px rgba(235,108,54,0.45)); }
+    }
+    .active-flow {
+      stroke-dasharray: 6 4;
+      animation: crawlDashes 1.2s linear infinite;
+    }
+    .protocol-hub {
+      animation: pulseProtocol 2.5s ease-in-out infinite;
+    }
+  </style>
+
+  <defs>
+    <pattern id="grid-dots" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="0.85" fill="rgba(45,49,66,0.12)"/>
+    </pattern>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+    </marker>
+    <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#16a34a"/>
+    </marker>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="100%" height="100%" fill="#f5f5f5" rx="8"/>
+  <rect width="100%" height="100%" fill="url(#grid-dots)" opacity="0.6"/>
+
+  <!-- ==================== 1. 顶部：ProtocolState 协议状态追踪中枢 ==================== -->
+  <g id="protocol-registry" class="protocol-hub">
+    <rect x="50" y="30" width="900" height="120" rx="8" fill="#ffffff" stroke="#eb6c36" stroke-width="1.6"/>
+    <rect x="50" y="30" width="900" height="34" rx="8" fill="rgba(235,108,54,0.12)"/>
+    <rect x="50" y="52" width="900" height="12" fill="rgba(235,108,54,0.12)"/>
+    <text x="70" y="52" fill="#eb6c36" font-size="12" font-weight="700">ProtocolState 协议状态机中枢 (pending_requests 字典)</text>
+    <text x="750" y="52" fill="#eb6c36" font-size="8.5" font-family="'Geist Mono', monospace">request_id 唯一关联</text>
+
+    <text x="70" y="85" fill="#2d3142" font-size="10.5" font-weight="600">ProtocolState { request_id: "req_0042", type: "shutdown | plan_approval", status: "pending ──► approved | rejected" }</text>
+    <text x="70" y="105" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace">• 发起方生成唯一 request_id 登记状态表 ──► 接收方处理完成后附带原 request_id 回传 ──► 精确撮合状态流转</text>
+    <text x="70" y="125" fill="#166534" font-size="8.5" font-weight="600">🛡 告别不可靠的纯文本随缘交流，迈入严格契约化通信！</text>
+  </g>
+
+
+  <!-- ==================== 2. 左侧：协议 A - 优雅关机握手 (Graceful Shutdown) ==================== -->
+  <rect x="50" y="180" width="430" height="470" rx="8" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+  <rect x="50" y="180" width="430" height="36" rx="8" fill="#ececec"/>
+  <rect x="50" y="204" width="430" height="12" fill="#ececec"/>
+  <text x="70" y="203" fill="#2d3142" font-size="12" font-weight="700">协议 A: 优雅关机握手 (Shutdown Protocol)</text>
+  <text x="350" y="203" fill="#eb6c36" font-size="8.5" font-family="'Geist Mono', monospace">Lead ──► 队友</text>
+
+  <!-- Step 1 -->
+  <rect x="70" y="235" width="390" height="60" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)"/>
+  <text x="85" y="258" fill="#2d3142" font-size="10.5" font-weight="600">1. Lead 发起关机意向：</text>
+  <text x="85" y="278" fill="#eb6c36" font-size="8.5" font-family="'Geist Mono', monospace">request_shutdown(target="alice", reason="任务已完成")</text>
+
+  <!-- Step 2 -->
+  <rect x="70" y="325" width="390" height="70" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)"/>
+  <text x="85" y="348" fill="#2d3142" font-size="10.5" font-weight="600">2. Alice 收信并执行安全收尾：</text>
+  <text x="85" y="368" fill="#4f5d75" font-size="8.5">• 保存当前未提交的代码文件</text>
+  <text x="85" y="385" fill="#4f5d75" font-size="8.5">• 释放占用的端口与临时锁，清理临时缓存</text>
+
+  <!-- Step 3 -->
+  <rect x="70" y="425" width="390" height="60" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)"/>
+  <text x="85" y="448" fill="#2d3142" font-size="10.5" font-weight="600">3. Alice 回复关机确认：</text>
+  <text x="85" y="468" fill="#166534" font-size="8.5" font-family="'Geist Mono', monospace">send_response(req_id, status="approved", msg="收尾完成")</text>
+
+  <!-- Step 4 -->
+  <rect x="70" y="515" width="390" height="70" rx="6" fill="rgba(22,163,74,0.04)" stroke="#16a34a" stroke-width="1.2"/>
+  <text x="85" y="538" fill="#166534" font-size="11" font-weight="700">4. 撮合成功 ──► 销毁队友线程</text>
+  <text x="85" y="558" fill="#2d3142" font-size="8.5">Lead 确认 Alice 已安全离线，更新 Team 状态</text>
+  <text x="85" y="575" fill="#166534" font-size="8" font-weight="600">✓ 杜绝暴力 kill 导致的半截代码损坏与数据悬空！</text>
+
+  <!-- 关机内部连线 -->
+  <line class="active-flow" x1="265" y1="295" x2="265" y2="325" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+  <line class="active-flow" x1="265" y1="395" x2="265" y2="425" stroke="#4f5d75" stroke-width="1.4" marker-end="url(#arrow)"/>
+  <line class="active-flow" x1="265" y1="485" x2="265" y2="515" stroke="#16a34a" stroke-width="1.4" marker-end="url(#arrow-green)"/>
+
+
+  <!-- ==================== 3. 右侧：协议 B - 高危计划审批 (Plan Approval) ==================== -->
+  <rect x="520" y="180" width="430" height="470" rx="8" fill="#ffffff" stroke="#eb6c36" stroke-width="1.4"/>
+  <rect x="520" y="180" width="430" height="36" rx="8" fill="rgba(235,108,54,0.1)"/>
+  <rect x="520" y="204" width="430" height="12" fill="rgba(235,108,54,0.1)"/>
+  <text x="540" y="203" fill="#eb6c36" font-size="12" font-weight="700">协议 B: 计划审批门控 (Plan Approval Protocol)</text>
+  <text x="820" y="203" fill="#2d3142" font-size="8.5" font-family="'Geist Mono', monospace">队友 ──► Lead</text>
+
+  <!-- Step 1 -->
+  <rect x="540" y="235" width="390" height="60" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)"/>
+  <text x="555" y="258" fill="#2d3142" font-size="10.5" font-weight="600">1. Bob 提交高危重构计划：</text>
+  <text x="555" y="278" fill="#eb6c36" font-size="8.5" font-family="'Geist Mono', monospace">request_plan_approval("重构 auth.py 数据表结构")</text>
+
+  <!-- Step 2 -->
+  <rect x="540" y="325" width="390" height="70" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)"/>
+  <text x="555" y="348" fill="#2d3142" font-size="10.5" font-weight="600">2. Lead / 人类审查计划细节：</text>
+  <text x="555" y="368" fill="#4f5d75" font-size="8.5">• 评估是否有破坏现有生产 API 的风险</text>
+  <text x="555" y="385" fill="#4f5d75" font-size="8.5">• 确认向下兼容性与测试覆盖范围</text>
+
+  <!-- Step 3 -->
+  <rect x="540" y="425" width="390" height="60" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)"/>
+  <text x="555" y="448" fill="#2d3142" font-size="10.5" font-weight="600">3. Lead 下发审批裁决：</text>
+  <text x="555" y="468" fill="#166534" font-size="8.5" font-family="'Geist Mono', monospace">approve_plan(req_id, approved=True, comment="方案通过")</text>
+
+  <!-- Step 4 -->
+  <rect x="540" y="515" width="390" height="70" rx="6" fill="rgba(22,163,74,0.04)" stroke="#16a34a" stroke-width="1.2"/>
+  <text x="555" y="538" fill="#166534" font-size="11" font-weight="700">4. 门控放行 ──► Bob 开始执行修改</text>
+  <text x="555" y="558" fill="#2d3142" font-size="8.5">Bob 收到 approval 信号，正式调用 edit_file 动工</text>
+  <text x="555" y="575" fill="#166534" font-size="8" font-weight="600">✓ 先划边界再给自由，确保团队多线开发安全可控！</text>
+
+  <!-- 审批内部连线 -->
+  <line class="active-flow" x1="735" y1="295" x2="735" y2="325" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+  <line class="active-flow" x1="735" y1="395" x2="735" y2="425" stroke="#4f5d75" stroke-width="1.4" marker-end="url(#arrow)"/>
+  <line class="active-flow" x1="735" y1="485" x2="735" y2="515" stroke="#16a34a" stroke-width="1.4" marker-end="url(#arrow-green)"/>
+
+</svg>

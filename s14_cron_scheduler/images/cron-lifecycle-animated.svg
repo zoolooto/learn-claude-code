@@ -1,0 +1,120 @@
+<svg viewBox="0 0 1000 680" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="s14-title s14-desc" font-family="'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <title id="s14-title">s14: Cron Scheduler 定时调度与队列驱动拓扑图</title>
+  <desc id="s14-desc">展示独立 Cron 调度线程、持久化 cron_jobs.json、cron_queue 缓冲队列与空闲自动交付 Agent 的四层调度架构</desc>
+
+  <style>
+    @keyframes crawlDashes {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: -24; }
+    }
+    @keyframes pulseCron {
+      0%, 100% { filter: drop-shadow(0 0 0px rgba(235,108,54,0)); }
+      50% { filter: drop-shadow(0 0 8px rgba(235,108,54,0.45)); }
+    }
+    .active-flow {
+      stroke-dasharray: 6 4;
+      animation: crawlDashes 1.2s linear infinite;
+    }
+    .cron-hub {
+      animation: pulseCron 2.5s ease-in-out infinite;
+    }
+  </style>
+
+  <defs>
+    <pattern id="grid-dots" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="0.85" fill="rgba(45,49,66,0.12)"/>
+    </pattern>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+    </marker>
+    <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#16a34a"/>
+    </marker>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="100%" height="100%" fill="#f5f5f5" rx="8"/>
+  <rect width="100%" height="100%" fill="url(#grid-dots)" opacity="0.6"/>
+
+  <!-- ==================== 1. 左侧：Cron 调度器与时间匹配 (Scheduler Daemon) ==================== -->
+  <rect x="40" y="30" width="420" height="620" rx="8" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+  <rect x="40" y="30" width="420" height="38" rx="8" fill="#ececec"/>
+  <rect x="40" y="56" width="420" height="12" fill="#ececec"/>
+  <text x="60" y="54" fill="#2d3142" font-size="12" font-weight="700">Cron 调度线程 (Daemon Scheduler Thread)</text>
+  <text x="320" y="54" fill="#eb6c36" font-size="8.5" font-family="'Geist Mono', monospace">独立 1s 轮询时钟</text>
+
+  <!-- Cron 任务配置库 -->
+  <rect x="60" y="85" width="380" height="160" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)"/>
+  <text x="75" y="108" fill="#2d3142" font-size="11" font-weight="700">⏰ 定时作业定义库 (.cron/jobs.json):</text>
+  
+  <rect x="75" y="120" width="350" height="50" rx="4" fill="#ffffff" stroke="rgba(45,49,66,0.1)"/>
+  <text x="85" y="138" fill="#eb6c36" font-size="9" font-family="'Geist Mono', monospace">cron: "*/30 * * * *" (每 30 分钟)</text>
+  <text x="85" y="155" fill="#2d3142" font-size="8.5">prompt: "检查 GitHub PR 状态并执行静态代码审查"</text>
+
+  <rect x="75" y="180" width="350" height="50" rx="4" fill="#ffffff" stroke="rgba(45,49,66,0.1)"/>
+  <text x="85" y="198" fill="#166534" font-size="9" font-family="'Geist Mono', monospace">cron: "0 9 * * *" (每天 9:00 AM)</text>
+  <text x="85" y="215" fill="#2d3142" font-size="8.5">prompt: "拉取上游最新分支，运行 pytest 全量回归"</text>
+
+  <!-- 调度判断节点 -->
+  <g class="cron-hub">
+    <rect x="60" y="270" width="380" height="100" rx="6" fill="#ffffff" stroke="#eb6c36" stroke-width="1.6"/>
+    <text x="75" y="295" fill="#eb6c36" font-size="11" font-weight="700">时钟匹配引擎 (match_cron)</text>
+    <text x="75" y="315" fill="#2d3142" font-size="8.5">• 当前时间满足 cron 表达式且未触发过？</text>
+    <text x="75" y="333" fill="#2d3142" font-size="8.5">• 生产定时事件 ──► 压入全局 cron_queue 队列</text>
+    <text x="75" y="353" fill="#16a34a" font-size="8.5" font-weight="600">cron_queue.put(job.prompt)</text>
+  </g>
+
+  <line class="active-flow" x1="250" y1="245" x2="250" y2="270" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+
+  <!-- 特性说明 -->
+  <rect x="60" y="400" width="380" height="230" rx="6" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.1)"/>
+  <text x="75" y="425" fill="#2d3142" font-size="10.5" font-weight="700">四层解耦架构亮点：</text>
+  <text x="75" y="450" fill="#4f5d75" font-size="8.5">1. 调度与执行彻底解耦：时钟只管生产，不管消费</text>
+  <text x="75" y="475" fill="#4f5d75" font-size="8.5">2. Durable 磁盘持久化：会话重启后定时任务不丢失</text>
+  <text x="75" y="500" fill="#4f5d75" font-size="8.5">3. 启发式防死锁：避免同一个任务每秒重复触发</text>
+  <text x="75" y="530" fill="#166534" font-size="9" font-weight="600">🚀 让 Agent 具备了从“被动响应”向“主动常驻”跃迁的能力！</text>
+
+
+  <!-- ==================== 2. 中间：缓冲区 cron_queue ==================== -->
+  <path class="active-flow" d="M 440 320 L 500 320" fill="none" stroke="#eb6c36" stroke-width="1.8" marker-end="url(#arrow-accent)"/>
+  <rect x="445" y="305" width="50" height="16" rx="2" fill="#ffffff" stroke="#eb6c36" stroke-width="0.8"/>
+  <text x="470" y="316" fill="#eb6c36" font-size="7.5" font-family="'Geist Mono', monospace" text-anchor="middle">put()</text>
+
+
+  <!-- ==================== 3. 右侧：Queue Processor 与 Agent 自动交付 ==================== -->
+  <rect x="520" y="30" width="440" height="620" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="1.4"/>
+  <rect x="520" y="30" width="440" height="38" rx="8" fill="rgba(22,163,74,0.1)"/>
+  <rect x="520" y="56" width="440" height="12" fill="rgba(22,163,74,0.1)"/>
+  <text x="540" y="54" fill="#166534" font-size="12" font-weight="700">队列处理器与主动唤醒 (Queue Processor)</text>
+  <text x="820" y="54" fill="#166534" font-size="8.5" font-family="'Geist Mono', monospace">Auto-Delivery</text>
+
+  <!-- 锁检查 -->
+  <rect x="540" y="85" width="400" height="105" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)"/>
+  <text x="555" y="108" fill="#2d3142" font-size="11" font-weight="700">空闲感知与互斥锁 (agent_lock):</text>
+  <text x="555" y="130" fill="#4f5d75" font-size="8.5">• Agent 正在与用户交谈？──► 暂缓交付，队列等待</text>
+  <text x="555" y="150" fill="#166534" font-size="8.5" font-weight="600">• Agent 处于空闲 (Idle)？──► 自动加锁并启动 agent_loop</text>
+  <text x="555" y="170" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace">with agent_lock: agent_loop([{"role": "user", "content": prompt}])</text>
+
+  <!-- 自动执行 -->
+  <rect x="540" y="220" width="400" height="140" rx="6" fill="#ffffff" stroke="#eb6c36" stroke-width="1.4"/>
+  <text x="555" y="245" fill="#eb6c36" font-size="11" font-weight="700">无人值守主动巡检执行中...</text>
+  <text x="555" y="268" fill="#2d3142" font-size="8.5" font-family="'Geist Mono', monospace">[CRON] 触发 09:00 全量回归测试</text>
+  <text x="555" y="288" fill="#4f5d75" font-size="8.5">• 自动拉取 Git 最新 Commit</text>
+  <text x="555" y="308" fill="#4f5d75" font-size="8.5">• 运行 pytest 测试套件并生成诊断报告</text>
+  <text x="555" y="328" fill="#16a34a" font-size="8.5" font-weight="600">✓ 测试全部通过 · 记录审计日志 · 释放锁恢复休眠</text>
+
+  <!-- 连线 -->
+  <line class="active-flow" x1="740" y1="190" x2="740" y2="220" stroke="#16a34a" stroke-width="1.6" marker-end="url(#arrow-green)"/>
+
+  <!-- 底部说明 -->
+  <rect x="540" y="380" width="400" height="250" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)"/>
+  <text x="555" y="405" fill="#2d3142" font-size="10.5" font-weight="700">手动触发 (s13) vs 定时调度 (s14):</text>
+  <text x="555" y="430" fill="#4f5d75" font-size="8.5">• 触发源：人类手动输入 ──► 独立时间调度线程自动生产</text>
+  <text x="555" y="455" fill="#4f5d75" font-size="8.5">• 运行节奏：踹一脚动一下 ──► 定时定候全自动巡检与自愈</text>
+  <text x="555" y="480" fill="#4f5d75" font-size="8.5">• 适用场景：即时开发 ──► CI 巡检、数据同步、定时报表</text>
+  <text x="555" y="515" fill="#166534" font-size="9" font-weight="600">💡 配合 OpenClaw / claw0 心跳体系，可打造成 7x24h 真正常驻助理！</text>
+
+</svg>

@@ -1,0 +1,141 @@
+<svg viewBox="0 0 1000 680" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="s15-title s15-desc" font-family="'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <title id="s15-title">s15: Agent Teams 多智能体团队协作与消息总线拓扑图</title>
+  <desc id="s15-desc">展示 Team Lead 与多个持久化 Teammates 基于 MessageBus（.jsonl 文件收件箱）进行双向异步通信与任务协同的拓扑架构</desc>
+
+  <style>
+    @keyframes crawlDashes {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: -24; }
+    }
+    @keyframes pulseLead {
+      0%, 100% { filter: drop-shadow(0 0 0px rgba(235,108,54,0)); }
+      50% { filter: drop-shadow(0 0 10px rgba(235,108,54,0.45)); }
+    }
+    .active-flow {
+      stroke-dasharray: 6 4;
+      animation: crawlDashes 1.2s linear infinite;
+    }
+    .lead-glow {
+      animation: pulseLead 2.5s ease-in-out infinite;
+    }
+  </style>
+
+  <defs>
+    <pattern id="grid-dots" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="0.85" fill="rgba(45,49,66,0.12)"/>
+    </pattern>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+    </marker>
+    <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#16a34a"/>
+    </marker>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="100%" height="100%" fill="#f5f5f5" rx="8"/>
+  <rect width="100%" height="100%" fill="url(#grid-dots)" opacity="0.6"/>
+
+  <!-- ==================== 1. 顶部：Team Lead 主控 Agent ==================== -->
+  <g id="team-lead" class="lead-glow">
+    <rect x="250" y="30" width="500" height="130" rx="10" fill="#ffffff" stroke="#eb6c36" stroke-width="1.8"/>
+    <rect x="250" y="30" width="500" height="36" rx="10" fill="rgba(235,108,54,0.12)"/>
+    <rect x="250" y="54" width="500" height="12" fill="rgba(235,108,54,0.12)"/>
+    <text x="270" y="53" fill="#eb6c36" font-size="13" font-weight="700">Team Lead (架构师兼团队负责人)</text>
+    <text x="640" y="53" fill="#eb6c36" font-size="8.5" font-family="'Geist Mono', monospace">Master Controller</text>
+
+    <text x="270" y="85" fill="#2d3142" font-size="10.5" font-weight="600">• 规划总目标并派生专业队友：spawn_teammate(name, role)</text>
+    <text x="270" y="105" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace">• 异步发送工作指令：send_message(to="backend", msg="实现 JWT 鉴权")</text>
+    <text x="270" y="125" fill="#166534" font-size="8.5" font-family="'Geist Mono', monospace">• 周期性排空收件箱：read_inbox("lead.jsonl") 汇总团队成果</text>
+  </g>
+
+
+  <!-- ==================== 2. 中间：MessageBus 异步邮箱总线 ==================== -->
+  <rect x="40" y="195" width="920" height="130" rx="8" fill="#ffffff" stroke="#2e5aa8" stroke-width="1.4"/>
+  <rect x="40" y="195" width="920" height="34" rx="8" fill="rgba(46,90,168,0.06)"/>
+  <rect x="40" y="217" width="920" height="12" fill="rgba(46,90,168,0.06)"/>
+  <text x="60" y="217" fill="#2e5aa8" font-size="12" font-weight="700">MessageBus 消息总线 (.mailboxes/*.jsonl 邮箱文件仓库)</text>
+  <text x="740" y="217" fill="#2e5aa8" font-size="8.5" font-family="'Geist Mono', monospace">解耦通信 · Append-only JSONL</text>
+
+  <!-- 3 个邮箱文件 -->
+  <rect x="65" y="245" width="260" height="65" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)"/>
+  <text x="80" y="267" fill="#2d3142" font-size="10.5" font-weight="600">📬 lead.jsonl (主控收件箱)</text>
+  <text x="80" y="285" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace">{"from": "tester", "text": "测试已通过"}</text>
+  <text x="80" y="298" fill="#16a34a" font-size="7.5" font-family="'Geist Mono', monospace">消费式读取：read &amp;&amp; unlink</text>
+
+  <rect x="370" y="245" width="260" height="65" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)"/>
+  <text x="385" y="267" fill="#eb6c36" font-size="10.5" font-weight="600">📬 backend.jsonl (后端研发邮箱)</text>
+  <text x="385" y="285" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace">{"from": "lead", "text": "请重构 auth.py"}</text>
+  <text x="385" y="298" fill="#eb6c36" font-size="7.5" font-family="'Geist Mono', monospace">独立线程随时轮询拉取</text>
+
+  <rect x="675" y="245" width="260" height="65" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)"/>
+  <text x="690" y="267" fill="#166534" font-size="10.5" font-weight="600">📬 tester.jsonl (QA 测试邮箱)</text>
+  <text x="690" y="285" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace">{"from": "backend", "text": "API 已交付测试"}</text>
+  <text x="690" y="298" fill="#166534" font-size="7.5" font-family="'Geist Mono', monospace">队友之间亦可横向通信</text>
+
+
+  <!-- ==================== 3. 底部：持久化 Teammates 队友线程 ==================== -->
+  
+  <!-- 队友 1: Backend Developer -->
+  <g id="teammate-1">
+    <rect x="40" y="360" width="430" height="280" rx="8" fill="#ffffff" stroke="#eb6c36" stroke-width="1.4"/>
+    <rect x="40" y="360" width="430" height="34" rx="8" fill="#ececec"/>
+    <rect x="40" y="382" width="430" height="12" fill="#ececec"/>
+    <text x="55" y="382" fill="#eb6c36" font-size="11.5" font-weight="700">Teammate 1: backend (后端研发专员)</text>
+    <text x="340" y="382" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace">Thread-01 · 持久会话</text>
+
+    <text x="55" y="415" fill="#2d3142" font-size="10" font-weight="600">专注职责：专精 Python / SQL / API 开发</text>
+    <text x="55" y="435" fill="#4f5d75" font-size="8.5">• 拥有独立的上下文记忆空间，不被测试和前端干扰</text>
+    <text x="55" y="455" fill="#4f5d75" font-size="8.5">• 接收来自 Lead 的任务并编写实现</text>
+    <text x="55" y="475" fill="#4f5d75" font-size="8.5">• 完成后向 tester.jsonl 发送验证请求</text>
+    
+    <rect x="55" y="495" width="400" height="130" rx="4" fill="#f8f9fa" stroke="rgba(45,49,66,0.1)"/>
+    <text x="65" y="515" fill="#2d3142" font-size="8.5" font-family="'Geist Mono', monospace">[Backend 内部执行循环]:</text>
+    <text x="65" y="535" fill="#eb6c36" font-size="8.5" font-family="'Geist Mono', monospace">1. read_inbox("backend.jsonl")</text>
+    <text x="65" y="555" fill="#2d3142" font-size="8.5" font-family="'Geist Mono', monospace">2. edit_file("src/auth.py", old, new)</text>
+    <text x="65" y="575" fill="#2d3142" font-size="8.5" font-family="'Geist Mono', monospace">3. send_message("tester", "请回归测试 auth.py")</text>
+    <text x="65" y="600" fill="#16a34a" font-size="8.5" font-weight="600">✓ 产出物直接写入共享工作区</text>
+  </g>
+
+  <!-- 队友 2: QA Tester -->
+  <g id="teammate-2">
+    <rect x="530" y="360" width="430" height="280" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="1.4"/>
+    <rect x="530" y="360" width="430" height="34" rx="8" fill="#ececec"/>
+    <rect x="530" y="382" width="430" height="12" fill="#ececec"/>
+    <text x="545" y="382" fill="#166534" font-size="11.5" font-weight="700">Teammate 2: tester (QA 质量工程师)</text>
+    <text x="830" y="382" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace">Thread-02 · 持久会话</text>
+
+    <text x="545" y="415" fill="#2d3142" font-size="10" font-weight="600">专注职责：专精 pytest / 测试用例 / 回归验证</text>
+    <text x="545" y="435" fill="#4f5d75" font-size="8.5">• 严密监控测试失败堆栈与边缘用例覆盖</text>
+    <text x="545" y="455" fill="#4f5d75" font-size="8.5">• 收到 backend 提测通知后执行 pytest</text>
+    <text x="545" y="475" fill="#4f5d75" font-size="8.5">• 确认无误后向 lead.jsonl 汇报终验成果</text>
+    
+    <rect x="545" y="495" width="400" height="130" rx="4" fill="#f8f9fa" stroke="rgba(45,49,66,0.1)"/>
+    <text x="555" y="515" fill="#2d3142" font-size="8.5" font-family="'Geist Mono', monospace">[Tester 内部执行循环]:</text>
+    <text x="555" y="535" fill="#16a34a" font-size="8.5" font-family="'Geist Mono', monospace">1. read_inbox("tester.jsonl")</text>
+    <text x="555" y="555" fill="#2d3142" font-size="8.5" font-family="'Geist Mono', monospace">2. bash("pytest tests/test_auth.py")</text>
+    <text x="555" y="575" fill="#2d3142" font-size="8.5" font-family="'Geist Mono', monospace">3. send_message("lead", "所有 18 个用例全部通过！")</text>
+    <text x="555" y="600" fill="#16a34a" font-size="8.5" font-weight="600">✓ 严密质量兜底，闭环汇报</text>
+  </g>
+
+
+  <!-- ==================== 4. 连线体系 ==================== -->
+  
+  <!-- Lead 派发到邮箱 -->
+  <path class="active-flow" d="M 400 160 L 400 245" fill="none" stroke="#eb6c36" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+  <!-- 邮箱派发到 Backend -->
+  <path class="active-flow" d="M 500 310 L 255 360" fill="none" stroke="#eb6c36" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+  <!-- Backend 发送到 Tester 邮箱 -->
+  <path class="active-flow" d="M 470 560 L 500 560 L 500 280 L 675 280" fill="none" stroke="#2e5aa8" stroke-width="1.4" stroke-dasharray="4 2" marker-end="url(#arrow-blue)"/>
+  <!-- Tester 汇报给 Lead 邮箱 -->
+  <path class="active-flow" d="M 800 360 L 800 330 L 195 330 L 195 310" fill="none" stroke="#16a34a" stroke-width="1.6" marker-end="url(#arrow-green)"/>
+  <!-- Lead 提取邮箱 -->
+  <path class="active-flow" d="M 195 245 L 195 120 L 250 120" fill="none" stroke="#16a34a" stroke-width="1.6" marker-end="url(#arrow-green)"/>
+
+</svg>

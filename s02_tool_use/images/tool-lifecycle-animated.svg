@@ -1,0 +1,113 @@
+<svg viewBox="0 0 1000 680" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="s02-title s02-desc" font-family="'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <title id="s02-title">s02: Tool Use 查表分发与原子工具箱拓扑图</title>
+  <desc id="s02-desc">展示从单一 bash 到 5 个原子工具箱的扩展，以及基于 TOOL_HANDLERS 查表分发和 safe_path 路径沙箱的架构机制</desc>
+
+  <style>
+    @keyframes crawlDashes {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: -24; }
+    }
+    @keyframes pulseDispatch {
+      0%, 100% { filter: drop-shadow(0 0 0px rgba(235,108,54,0)); }
+      50% { filter: drop-shadow(0 0 10px rgba(235,108,54,0.45)); }
+    }
+    .active-flow {
+      stroke-dasharray: 6 4;
+      animation: crawlDashes 1.2s linear infinite;
+    }
+    .dispatch-glow {
+      animation: pulseDispatch 2.5s ease-in-out infinite;
+    }
+  </style>
+
+  <defs>
+    <pattern id="grid-dots" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="0.85" fill="rgba(45,49,66,0.12)"/>
+    </pattern>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+    </marker>
+    <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/>
+    </marker>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="100%" height="100%" fill="#f5f5f5" rx="8"/>
+  <rect width="100%" height="100%" fill="url(#grid-dots)" opacity="0.6"/>
+
+  <!-- 1. LLM 响应解析 -->
+  <rect x="350" y="30" width="300" height="46" rx="23" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+  <text x="500" y="52" fill="#2d3142" font-size="12" font-weight="600" text-anchor="middle">LLM 输出多工具调用块 (tool_use)</text>
+  <text x="500" y="65" fill="#7a8399" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">for block in response.content: ...</text>
+
+  <!-- 2. 核心分发中枢 Dispatch Map -->
+  <g class="dispatch-glow">
+    <rect x="250" y="115" width="500" height="90" rx="10" fill="#ffffff" stroke="#eb6c36" stroke-width="1.8"/>
+    <rect x="262" y="107" width="160" height="16" rx="2" fill="#eb6c36"/>
+    <text x="342" y="118" fill="#ffffff" font-size="7.5" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle">DISPATCH MAP (查表法)</text>
+    <text x="500" y="145" fill="#eb6c36" font-size="13" font-weight="700" text-anchor="middle">TOOL_HANDLERS[block.name](**block.input)</text>
+    <text x="500" y="165" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">主循环无需写死 if/elif · 扩展新工具仅需注册一行映射</text>
+    <text x="500" y="185" fill="#16a34a" font-size="8.5" font-weight="600">🛡 safe_path() 强制校验工作区边界，严禁跨目录逃逸</text>
+  </g>
+
+  <!-- 3. 5 个原子工具卡片 -->
+  <!-- bash -->
+  <rect x="40" y="250" width="170" height="180" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+  <text x="55" y="275" fill="#2d3142" font-size="11" font-weight="700">1. bash</text>
+  <text x="55" y="295" fill="#4f5d75" font-size="8.5">• 运行 Shell 指令</text>
+  <text x="55" y="315" fill="#4f5d75" font-size="8.5">• 编译 / 测试 / Git</text>
+  <text x="55" y="335" fill="#7a8399" font-size="8">独占执行 · 120s 超时</text>
+
+  <!-- read_file -->
+  <rect x="225" y="250" width="170" height="180" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+  <text x="240" y="275" fill="#2d3142" font-size="11" font-weight="700">2. read_file</text>
+  <text x="240" y="295" fill="#4f5d75" font-size="8.5">• 安全读取文件内容</text>
+  <text x="240" y="315" fill="#4f5d75" font-size="8.5">• 支持行数限制 limit</text>
+  <text x="240" y="335" fill="#16a34a" font-size="8">并发安全 · 只读</text>
+
+  <!-- write_file -->
+  <rect x="410" y="250" width="170" height="180" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+  <text x="425" y="275" fill="#2d3142" font-size="11" font-weight="700">3. write_file</text>
+  <text x="425" y="295" fill="#4f5d75" font-size="8.5">• 全量覆盖写入</text>
+  <text x="425" y="315" fill="#4f5d75" font-size="8.5">• 自动创建父目录</text>
+  <text x="425" y="335" fill="#eb6c36" font-size="8">破坏性操作 · 写盘</text>
+
+  <!-- edit_file -->
+  <rect x="595" y="250" width="170" height="180" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+  <text x="610" y="275" fill="#2d3142" font-size="11" font-weight="700">4. edit_file</text>
+  <text x="610" y="295" fill="#4f5d75" font-size="8.5">• 精确替换 1 次文本</text>
+  <text x="610" y="315" fill="#4f5d75" font-size="8.5">• old_text ──► new_text</text>
+  <text x="610" y="335" fill="#eb6c36" font-size="8">极小变更 · 节省Token</text>
+
+  <!-- glob -->
+  <rect x="780" y="250" width="180" height="180" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+  <text x="795" y="275" fill="#2d3142" font-size="11" font-weight="700">5. glob</text>
+  <text x="795" y="295" fill="#4f5d75" font-size="8.5">• 通配符检索文件树</text>
+  <text x="795" y="315" fill="#4f5d75" font-size="8.5">• 寻找 *.py 路径</text>
+  <text x="795" y="335" fill="#16a34a" font-size="8">并发安全 · 结构发现</text>
+
+  <!-- 4. 汇总回灌 -->
+  <rect x="300" y="490" width="400" height="60" rx="6" fill="#ffffff" stroke="#16a34a" stroke-width="1.4"/>
+  <text x="500" y="515" fill="#166534" font-size="12" font-weight="700" text-anchor="middle">汇集全部 tool_result 压入 messages[]</text>
+  <text x="500" y="532" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">多工具并发执行结果一次性喂回，开启下一轮</text>
+
+  <!-- 连线体系 -->
+  <line class="active-flow" x1="500" y1="76" x2="500" y2="115" stroke="#4f5d75" stroke-width="1.4" marker-end="url(#arrow)"/>
+  
+  <path class="active-flow" d="M 330 205 L 125 250" fill="none" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+  <path class="active-flow" d="M 400 205 L 310 250" fill="none" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+  <path class="active-flow" d="M 500 205 L 495 250" fill="none" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+  <path class="active-flow" d="M 600 205 L 680 250" fill="none" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+  <path class="active-flow" d="M 670 205 L 870 250" fill="none" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+
+  <path class="active-flow" d="M 125 430 L 350 490" fill="none" stroke="#16a34a" stroke-width="1.4" marker-end="url(#arrow)"/>
+  <path class="active-flow" d="M 310 430 L 420 490" fill="none" stroke="#16a34a" stroke-width="1.4" marker-end="url(#arrow)"/>
+  <path class="active-flow" d="M 495 430 L 500 490" fill="none" stroke="#16a34a" stroke-width="1.4" marker-end="url(#arrow)"/>
+  <path class="active-flow" d="M 680 430 L 580 490" fill="none" stroke="#16a34a" stroke-width="1.4" marker-end="url(#arrow)"/>
+  <path class="active-flow" d="M 870 430 L 650 490" fill="none" stroke="#16a34a" stroke-width="1.4" marker-end="url(#arrow)"/>
+
+</svg>

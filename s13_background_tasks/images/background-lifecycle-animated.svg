@@ -1,0 +1,121 @@
+<svg viewBox="0 0 1000 680" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="s13-title s13-desc" font-family="'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <title id="s13-title">s13: Background Tasks 异步后台任务与通知注入拓扑图</title>
+  <desc id="s13-desc">展示慢操作（npm/pip install、编译测试）派发至后台 Daemon 线程并发执行，主 Agent 零阻塞继续推理，完成后通过通知队列原子注入的闭环机制</desc>
+
+  <style>
+    @keyframes crawlDashes {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: -24; }
+    }
+    @keyframes pulseWorker {
+      0%, 100% { filter: drop-shadow(0 0 0px rgba(235,108,54,0)); }
+      50% { filter: drop-shadow(0 0 10px rgba(235,108,54,0.45)); }
+    }
+    .active-flow {
+      stroke-dasharray: 6 4;
+      animation: crawlDashes 1.2s linear infinite;
+    }
+    .worker-glow {
+      animation: pulseWorker 2.5s ease-in-out infinite;
+    }
+  </style>
+
+  <defs>
+    <pattern id="grid-dots" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="0.85" fill="rgba(45,49,66,0.12)"/>
+    </pattern>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+    </marker>
+    <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#16a34a"/>
+    </marker>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="100%" height="100%" fill="#f5f5f5" rx="8"/>
+  <rect width="100%" height="100%" fill="url(#grid-dots)" opacity="0.6"/>
+
+  <!-- ==================== 1. 主线程主循环泳道 (左) ==================== -->
+  <rect x="40" y="30" width="440" height="620" rx="8" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+  <rect x="40" y="30" width="440" height="38" rx="8" fill="#ececec"/>
+  <rect x="40" y="56" width="440" height="12" fill="#ececec"/>
+  <text x="60" y="54" fill="#2d3142" font-size="12" font-weight="700">主 Agent 主循环 (Main Thread · 零阻塞)</text>
+
+  <!-- ① 模型调用慢命令 -->
+  <rect x="60" y="85" width="400" height="75" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)"/>
+  <text x="75" y="108" fill="#2d3142" font-size="11" font-weight="600">1. 模型调用慢操作命令：</text>
+  <text x="75" y="128" fill="#eb6c36" font-size="9" font-family="'Geist Mono', monospace">bash("npm install &amp;&amp; npm run build", bg=true)</text>
+  <text x="75" y="145" fill="#7a8399" font-size="8">判断慢操作 ──► 立即脱离主线程派发给后台</text>
+
+  <!-- ② 立即返回 job_id -->
+  <rect x="60" y="180" width="400" height="65" rx="6" fill="rgba(22,163,74,0.04)" stroke="#16a34a" stroke-width="1.2"/>
+  <text x="75" y="203" fill="#166534" font-size="11" font-weight="600">2. 立即收到 tool_result (不卡死等待)：</text>
+  <text x="75" y="222" fill="#166534" font-size="8.5" font-family="'Geist Mono', monospace">"Command started in background: job_984321"</text>
+  <text x="75" y="235" fill="#7a8399" font-size="8">耗时 &lt; 5ms，主 Agent 立刻恢复自由</text>
+
+  <!-- ③ 主 Agent 并行处理其他事务 -->
+  <rect x="60" y="265" width="400" height="75" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+  <text x="75" y="288" fill="#2d3142" font-size="11" font-weight="600">3. 主 Agent 继续并发思考 / 处理其他任务：</text>
+  <text x="75" y="308" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace">• 查看其他文件 · 编写文档 · 规划下一步</text>
+  <text x="75" y="325" fill="#16a34a" font-size="8">⚡ 彻底杜绝 10 分钟空转等待与 Token 浪费！</text>
+
+  <!-- ④ 接收后台主动注入通知 -->
+  <rect x="60" y="460" width="400" height="120" rx="6" fill="#ffffff" stroke="#eb6c36" stroke-width="1.4"/>
+  <text x="75" y="483" fill="#eb6c36" font-size="11" font-weight="700">4. 接收通知队列注入 (Notification Drain):</text>
+  <text x="75" y="505" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace">&lt;task_notification&gt;</text>
+  <text x="90" y="525" fill="#2d3142" font-size="8.5" font-family="'Geist Mono', monospace">Background job_984321 (npm build) completed!</text>
+  <text x="90" y="543" fill="#166534" font-size="8.5" font-family="'Geist Mono', monospace">Exit code: 0 · Build succeeded in 2.4m.</text>
+  <text x="75" y="563" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace">&lt;/task_notification&gt;</text>
+
+  <!-- 主泳道连线 -->
+  <line class="active-flow" x1="260" y1="160" x2="260" y2="180" stroke="#16a34a" stroke-width="1.4" marker-end="url(#arrow-green)"/>
+  <line class="active-flow" x1="260" y1="245" x2="260" y2="265" stroke="#4f5d75" stroke-width="1.4" marker-end="url(#arrow)"/>
+  <line class="active-flow" x1="260" y1="340" x2="260" y2="460" stroke="#eb6c36" stroke-width="1.4" stroke-dasharray="4 2" marker-end="url(#arrow-accent)"/>
+
+
+  <!-- ==================== 2. 后台 Daemon 工作线程泳道 (右) ==================== -->
+  <rect x="520" y="30" width="440" height="620" rx="8" fill="#ffffff" stroke="#eb6c36" stroke-width="1.6"/>
+  <rect x="520" y="30" width="440" height="38" rx="8" fill="rgba(235,108,54,0.12)"/>
+  <rect x="520" y="56" width="440" height="12" fill="rgba(235,108,54,0.12)"/>
+  <text x="540" y="54" fill="#eb6c36" font-size="12" font-weight="700">后台 Daemon 线程池 (Background Worker)</text>
+  <text x="820" y="54" fill="#eb6c36" font-size="8.5" font-family="'Geist Mono', monospace">threading.Thread</text>
+
+  <!-- 后台执行中 -->
+  <g class="worker-glow">
+    <rect x="540" y="100" width="400" height="150" rx="6" fill="#f8f9fa" stroke="#eb6c36" stroke-width="1.4"/>
+    <text x="555" y="125" fill="#eb6c36" font-size="11" font-weight="700">后台静默执行中 (job_984321)</text>
+    <text x="555" y="148" fill="#2d3142" font-size="8.5" font-family="'Geist Mono', monospace">cmd: npm install &amp;&amp; npm run build</text>
+    <text x="555" y="168" fill="#4f5d75" font-size="8.5">• 独立子进程 subprocess.Popen</text>
+    <text x="555" y="188" fill="#4f5d75" font-size="8.5">• 管道实时捕获 stdout/stderr 输出流</text>
+    <text x="555" y="208" fill="#4f5d75" font-size="8.5">• 状态记录: status="running", started_at=17:45:00</text>
+    <text x="555" y="232" fill="#eb6c36" font-size="8.5" font-weight="600">⏳ 运行 2 分 24 秒...</text>
+  </g>
+
+  <!-- 产出结果，推入消息队列 -->
+  <rect x="540" y="300" width="400" height="110" rx="6" fill="rgba(22,163,74,0.04)" stroke="#16a34a" stroke-width="1.2"/>
+  <text x="555" y="325" fill="#166534" font-size="11" font-weight="700">子进程结束 ──► 生产通知事件</text>
+  <text x="555" y="348" fill="#2d3142" font-size="8.5">• exit_code=0 · 截取最近 50,000 字符输出</text>
+  <text x="555" y="368" fill="#2d3142" font-size="8.5">• 组装结构化通知对象 TaskNotification</text>
+  <text x="555" y="392" fill="#166534" font-size="8.5" font-family="'Geist Mono', monospace">NOTIFICATION_QUEUE.put(notification)</text>
+
+
+  <!-- ==================== 3. 跨泳道派发与通知回推连线 ==================== -->
+  
+  <!-- 派发到后台线程 -->
+  <path class="active-flow" d="M 460 120 L 540 120" fill="none" stroke="#eb6c36" stroke-width="1.8" marker-end="url(#arrow-accent)"/>
+  <rect x="475" y="105" width="50" height="16" rx="2" fill="#ffffff" stroke="#eb6c36" stroke-width="0.8"/>
+  <text x="500" y="116" fill="#eb6c36" font-size="7.5" font-family="'Geist Mono', monospace" text-anchor="middle">start()</text>
+
+  <!-- 后台完成推送到通知队列 -->
+  <line class="active-flow" x1="740" y1="250" x2="740" y2="300" stroke="#16a34a" stroke-width="1.6" marker-end="url(#arrow-green)"/>
+
+  <!-- 通知队列注入回主循环 -->
+  <path class="active-flow" d="M 540 370 L 490 370 L 490 520 L 460 520" fill="none" stroke="#eb6c36" stroke-width="1.8" marker-end="url(#arrow-accent)"/>
+  <rect x="465" y="440" width="55" height="16" rx="2" fill="#ffffff" stroke="#eb6c36" stroke-width="0.8"/>
+  <text x="492" y="451" fill="#eb6c36" font-size="7.5" font-family="'Geist Mono', monospace" text-anchor="middle">drain()</text>
+
+</svg>

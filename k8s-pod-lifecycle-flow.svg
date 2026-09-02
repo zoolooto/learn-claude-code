@@ -1,0 +1,159 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680" width="100%" height="100%" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <defs>
+    <!-- 阴影 -->
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.08"/>
+    </filter>
+
+    <!-- 箭头 -->
+    <marker id="m-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#2563eb"/>
+    </marker>
+    <marker id="m-purple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#9333ea"/>
+    </marker>
+    <marker id="m-amber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#d97706"/>
+    </marker>
+    <marker id="m-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#059669"/>
+    </marker>
+
+    <!-- 渐变 -->
+    <linearGradient id="flow-head" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f766e"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="1200" height="680" fill="#f8fafc" rx="12"/>
+  <rect x="1" y="1" width="1198" height="678" fill="none" stroke="#e2e8f0" stroke-width="2" rx="12"/>
+
+  <!-- 头部 -->
+  <rect x="0" y="0" width="1200" height="56" fill="url(#flow-head)" rx="12"/>
+  <rect x="0" y="46" width="1200" height="10" fill="#0d9488"/>
+  <text x="30" y="35" fill="#ffffff" font-size="18" font-weight="800">Kubernetes Pod 全生命周期交互与时序图解 (From kubectl apply to Pod Running)</text>
+
+  <!-- 时序泳道卡片 -->
+  <!-- 1. 用户/kubectl -->
+  <g transform="translate(30, 75)">
+    <rect width="140" height="40" rx="8" fill="#f1f5f9" stroke="#64748b" stroke-width="1.5"/>
+    <text x="70" y="25" fill="#1e293b" font-size="12" font-weight="700" text-anchor="middle">👨‍💻 kubectl</text>
+    <line x1="70" y1="40" x2="70" y2="560" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+  </g>
+
+  <!-- 2. kube-apiserver -->
+  <g transform="translate(190, 75)">
+    <rect width="160" height="40" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+    <text x="80" y="25" fill="#1e40af" font-size="12" font-weight="700" text-anchor="middle">🌐 kube-apiserver</text>
+    <line x1="80" y1="40" x2="80" y2="560" stroke="#bfdbfe" stroke-width="1.5" stroke-dasharray="4,4"/>
+  </g>
+
+  <!-- 3. etcd -->
+  <g transform="translate(370, 75)">
+    <rect width="140" height="40" rx="8" fill="#faf5ff" stroke="#9333ea" stroke-width="2"/>
+    <text x="70" y="25" fill="#6b21a8" font-size="12" font-weight="700" text-anchor="middle">💾 etcd</text>
+    <line x1="70" y1="40" x2="70" y2="560" stroke="#e9d5ff" stroke-width="1.5" stroke-dasharray="4,4"/>
+  </g>
+
+  <!-- 4. Controller Manager -->
+  <g transform="translate(530, 75)">
+    <rect width="150" height="40" rx="8" fill="#f8fafc" stroke="#475569" stroke-width="1.5"/>
+    <text x="75" y="25" fill="#334155" font-size="11" font-weight="700" text-anchor="middle">⚙️ Controller Manager</text>
+    <line x1="75" y1="40" x2="75" y2="560" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+  </g>
+
+  <!-- 5. kube-scheduler -->
+  <g transform="translate(700, 75)">
+    <rect width="150" height="40" rx="8" fill="#fefce8" stroke="#ca8a04" stroke-width="1.5"/>
+    <text x="75" y="25" fill="#854d0e" font-size="11" font-weight="700" text-anchor="middle">🧠 kube-scheduler</text>
+    <line x1="75" y1="40" x2="75" y2="560" stroke="#fde047" stroke-width="1.5" stroke-dasharray="4,4"/>
+  </g>
+
+  <!-- 6. kubelet -->
+  <g transform="translate(870, 75)">
+    <rect width="140" height="40" rx="8" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+    <text x="70" y="25" fill="#065f46" font-size="12" font-weight="700" text-anchor="middle">👷 kubelet (Node)</text>
+    <line x1="70" y1="40" x2="70" y2="560" stroke="#a7f3d0" stroke-width="1.5" stroke-dasharray="4,4"/>
+  </g>
+
+  <!-- 7. CRI / CNI / Pod -->
+  <g transform="translate(1030, 75)">
+    <rect width="140" height="40" rx="8" fill="#fff7ed" stroke="#ea580c" stroke-width="1.5"/>
+    <text x="70" y="25" fill="#c2410c" font-size="11" font-weight="700" text-anchor="middle">📦 Runtime / CNI</text>
+    <line x1="70" y1="40" x2="70" y2="560" stroke="#fed7aa" stroke-width="1.5" stroke-dasharray="4,4"/>
+  </g>
+
+  <!-- 时序步骤 -->
+  <!-- Step 1: 提交 YAML -->
+  <g transform="translate(0, 140)">
+    <path d="M 100 0 L 262 0" stroke="#2563eb" stroke-width="2" marker-end="url(#m-blue)"/>
+    <rect x="110" y="-18" width="140" height="18" rx="3" fill="#eff6ff"/>
+    <text x="180" y="-5" fill="#1d4ed8" font-size="10" font-weight="700" text-anchor="middle">① 提交 Deployment YAML</text>
+  </g>
+
+  <!-- Step 2: APIServer 认证鉴权并写 etcd -->
+  <g transform="translate(0, 180)">
+    <path d="M 270 0 L 432 0" stroke="#9333ea" stroke-width="2" marker-end="url(#m-purple)"/>
+    <rect x="285" y="-18" width="135" height="18" rx="3" fill="#faf5ff"/>
+    <text x="352" y="-5" fill="#7e22ce" font-size="10" font-weight="700" text-anchor="middle">② 校验并落库 Deployment</text>
+  </g>
+
+  <!-- Step 3: Controller Manager 监听到创建 Pod 声明 -->
+  <g transform="translate(0, 230)">
+    <path d="M 270 0 L 595 0" stroke="#475569" stroke-width="1.5" stroke-dasharray="4,2"/>
+    <path d="M 605 0 L 278 20" stroke="#2563eb" stroke-width="2" marker-end="url(#m-blue)"/>
+    <rect x="330" y="-5" width="220" height="18" rx="3" fill="#f8fafc"/>
+    <text x="440" y="8" fill="#334155" font-size="10" font-weight="700" text-anchor="middle">③ Watch 触发: 创建 Pod (nodeName 空)</text>
+  </g>
+
+  <!-- Step 4: 写入 Pod 到 etcd -->
+  <g transform="translate(0, 280)">
+    <path d="M 270 0 L 432 0" stroke="#9333ea" stroke-width="2" marker-end="url(#m-purple)"/>
+    <text x="352" y="-5" fill="#7e22ce" font-size="10" font-weight="700" text-anchor="middle">④ 持久化待调度 Pod</text>
+  </g>
+
+  <!-- Step 5: Scheduler 调度优选并绑定 -->
+  <g transform="translate(0, 330)">
+    <path d="M 270 0 L 765 0" stroke="#ca8a04" stroke-width="1.5" stroke-dasharray="4,2"/>
+    <path d="M 775 0 L 278 25" stroke="#d97706" stroke-width="2" marker-end="url(#m-amber)"/>
+    <rect x="420" y="5" width="250" height="18" rx="3" fill="#fefce8"/>
+    <text x="545" y="18" fill="#b45309" font-size="10" font-weight="700" text-anchor="middle">⑤ 过滤打分 ➔ 绑定 Pod 至 Node (nodeName=Node1)</text>
+  </g>
+
+  <!-- Step 6: kubelet 监听到属于自己的 Pod -->
+  <g transform="translate(0, 390)">
+    <path d="M 270 0 L 932 0" stroke="#059669" stroke-width="2" marker-end="url(#m-green)"/>
+    <rect x="520" y="-18" width="210" height="18" rx="3" fill="#ecfdf5"/>
+    <text x="625" y="-5" fill="#047857" font-size="10" font-weight="700" text-anchor="middle">⑥ kubelet Watch 到分配给本机的 Pod</text>
+  </g>
+
+  <!-- Step 7: kubelet 调用 CRI / CNI 启动容器 -->
+  <g transform="translate(0, 440)">
+    <path d="M 940 0 L 1092 0" stroke="#ea580c" stroke-width="2" marker-end="url(#m-amber)"/>
+    <rect x="955" y="-18" width="125" height="18" rx="3" fill="#fff7ed"/>
+    <text x="1017" y="-5" fill="#c2410c" font-size="10" font-weight="700" text-anchor="middle">⑦ CRI 创建容器 &amp; CNI 网络</text>
+  </g>
+
+  <!-- Step 8: 探针检测与运行成功 -->
+  <g transform="translate(0, 490)">
+    <path d="M 1100 0 L 948 0" stroke="#059669" stroke-width="2" marker-end="url(#m-green)"/>
+    <text x="1024" y="-5" fill="#065f46" font-size="10" font-weight="700" text-anchor="middle">⑧ 容器就绪 (Probes OK)</text>
+  </g>
+
+  <!-- Step 9: kubelet 汇报状态给 APIServer -->
+  <g transform="translate(0, 535)">
+    <path d="M 940 0 L 278 0" stroke="#059669" stroke-width="2" marker-end="url(#m-green)"/>
+    <rect x="490" y="-18" width="240" height="18" rx="3" fill="#ecfdf5"/>
+    <text x="610" y="-5" fill="#047857" font-size="10" font-weight="700" text-anchor="middle">⑨ 汇报 Pod 状态: Running (IP: 10.244.1.25)</text>
+  </g>
+
+  <!-- 底部说明框 -->
+  <g transform="translate(30, 595)">
+    <rect width="1140" height="60" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+    <text x="20" y="24" fill="#0f172a" font-size="12" font-weight="700">💡 架构核心精髓提炼：</text>
+    <text x="20" y="44" fill="#475569" font-size="11">1. 组件解耦：所有组件互不直连，全部通过 APIServer 的 HTTP/2 Watch 机制进行事件驱动异步响应。</text>
+    <text x="660" y="44" fill="#475569" font-size="11">2. 声明式终态：Controller 自动维持实际状态逼近期望状态，调度器只做决策不直接起容器。</text>
+  </g>
+</svg>

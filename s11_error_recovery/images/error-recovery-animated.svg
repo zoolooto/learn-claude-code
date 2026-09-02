@@ -1,0 +1,138 @@
+<svg viewBox="0 0 1000 680" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="s11-title s11-desc" font-family="'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <title id="s11-title">s11: Error Recovery 错误自愈与分级恢复拓扑图</title>
+  <desc id="s11-desc">展示输出截断升级、上下文超限紧急压缩以及 429/529 临时故障退避与模型降级切换的三大自愈分支</desc>
+
+  <style>
+    @keyframes crawlDashes {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: -24; }
+    }
+    @keyframes pulseError {
+      0%, 100% { filter: drop-shadow(0 0 0px rgba(235,108,54,0)); }
+      50% { filter: drop-shadow(0 0 8px rgba(235,108,54,0.45)); }
+    }
+    .active-flow {
+      stroke-dasharray: 6 4;
+      animation: crawlDashes 1.2s linear infinite;
+    }
+    .error-hub {
+      animation: pulseError 2.5s ease-in-out infinite;
+    }
+  </style>
+
+  <defs>
+    <pattern id="grid-dots" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="0.85" fill="rgba(45,49,66,0.12)"/>
+    </pattern>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+    </marker>
+    <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/>
+    </marker>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="100%" height="100%" fill="#f5f5f5" rx="8"/>
+  <rect width="100%" height="100%" fill="url(#grid-dots)" opacity="0.6"/>
+
+  <!-- ==================== 1. 顶部：LLM 调用与 try/except 捕获 ==================== -->
+  <g id="node-call">
+    <rect x="340" y="30" width="320" height="50" rx="8" fill="#ffffff" stroke="#2d3142" stroke-width="1.4"/>
+    <text x="500" y="52" fill="#2d3142" font-size="12" font-weight="700" text-anchor="middle">LLM 调用 (try/except 韧性环)</text>
+    <text x="500" y="68" fill="#7a8399" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">response = client.messages.create(...)</text>
+  </g>
+
+  <!-- 判定菱形 -->
+  <polygon points="500,105 600,140 500,175 400,140" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+  <text x="500" y="137" fill="#2d3142" font-size="11" font-weight="600" text-anchor="middle">捕获异常 / 截断?</text>
+  <text x="500" y="150" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">Exception or max_tokens</text>
+
+  <line class="active-flow" x1="500" y1="80" x2="500" y2="105" stroke="#4f5d75" stroke-width="1.4" marker-end="url(#arrow)"/>
+
+  <!-- 正常返回分支 -->
+  <path class="active-flow" d="M 600 140 L 880 140 L 880 620 L 670 620" fill="none" stroke="#16a34a" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <rect x="730" y="131" width="100" height="18" rx="2" fill="#ffffff" stroke="#16a34a" stroke-width="0.8"/>
+  <text x="780" y="143" fill="#166534" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" font-weight="600">正常响应 · 继续循环</text>
+
+
+  <!-- ==================== 2. 三大自愈恢复分支 ==================== -->
+  
+  <!-- 分支 1：输出截断 (max_tokens) -->
+  <g id="branch-tokens" class="error-hub">
+    <rect x="40" y="210" width="280" height="230" rx="8" fill="#ffffff" stroke="#eb6c36" stroke-width="1.5"/>
+    <rect x="40" y="210" width="280" height="36" rx="8" fill="rgba(235,108,54,0.1)"/>
+    <rect x="40" y="234" width="280" height="12" fill="rgba(235,108,54,0.1)"/>
+    <text x="55" y="233" fill="#eb6c36" font-size="11" font-weight="700">1. 输出截断 (max_tokens)</text>
+
+    <text x="55" y="265" fill="#2d3142" font-size="9.5" font-weight="600">第 1 次截断：升配扩容</text>
+    <text x="55" y="282" fill="#eb6c36" font-size="8.5" font-family="'Geist Mono', monospace">8K ──► 64K max_tokens</text>
+    <text x="55" y="298" fill="#7a8399" font-size="8">不修改 messages，直接更大空间重试</text>
+
+    <line x1="55" y1="312" x2="305" y2="312" stroke="rgba(45,49,66,0.1)"/>
+
+    <text x="55" y="332" fill="#2d3142" font-size="9.5" font-weight="600">第 2~3 次：注入续写提示</text>
+    <text x="55" y="350" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace">&lt;reminder&gt;Resume directly</text>
+    <text x="55" y="365" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace">no apology, pick up mid-thought&lt;/reminder&gt;</text>
+    <text x="55" y="390" fill="#16a34a" font-size="8" font-weight="600">🛡 上限 3 次续写，超限优雅退出</text>
+  </g>
+
+  <!-- 分支 2：上下文超限 (prompt_too_long) -->
+  <g id="branch-compact">
+    <rect x="360" y="210" width="280" height="230" rx="8" fill="#ffffff" stroke="#4f5d75" stroke-width="1.2"/>
+    <rect x="360" y="210" width="280" height="36" rx="8" fill="#ececec"/>
+    <rect x="360" y="234" width="280" height="12" fill="#ececec"/>
+    <text x="375" y="233" fill="#2d3142" font-size="11" font-weight="700">2. 上下文超限 (prompt_too_long)</text>
+
+    <text x="375" y="265" fill="#2d3142" font-size="9.5" font-weight="600">触发 Reactive Compact (应急压缩)</text>
+    <text x="375" y="285" fill="#4f5d75" font-size="8.5">• 裁剪旧 tool_result 大输出</text>
+    <text x="375" y="303" fill="#4f5d75" font-size="8.5">• 仅保留最近 2 条消息与目标</text>
+    <text x="375" y="321" fill="#4f5d75" font-size="8.5">• 调用轻量 Haiku 重新总结</text>
+
+    <line x1="375" y1="335" x2="625" y2="335" stroke="rgba(45,49,66,0.1)"/>
+
+    <text x="375" y="358" fill="#166534" font-size="8.5" font-weight="600">成功腾出 50%+ 空间后重试请求</text>
+    <text x="375" y="378" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace">hasAttemptedReactiveCompact = True</text>
+    <text x="375" y="395" fill="#7a8399" font-size="8">单轮只试 1 次，避免死循环压缩</text>
+  </g>
+
+  <!-- 分支 3：临时故障 (429 / 529 服务过载) -->
+  <g id="branch-retry">
+    <rect x="680" y="210" width="280" height="230" rx="8" fill="#ffffff" stroke="#4f5d75" stroke-width="1.2"/>
+    <rect x="680" y="210" width="280" height="36" rx="8" fill="#ececec"/>
+    <rect x="680" y="234" width="280" height="12" fill="#ececec"/>
+    <text x="695" y="233" fill="#2d3142" font-size="11" font-weight="700">3. 429 限流 / 529 服务过载</text>
+
+    <text x="695" y="265" fill="#2d3142" font-size="9.5" font-weight="600">指数退避 + 随机抖动 (Jitter)</text>
+    <text x="695" y="285" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace">delay = min(2^attempt + rand, 30s)</text>
+    <text x="695" y="303" fill="#7a8399" font-size="8">避免雪崩效应与并发重试风暴</text>
+
+    <line x1="695" y1="317" x2="945" y2="317" stroke="rgba(45,49,66,0.1)"/>
+
+    <text x="695" y="340" fill="#eb6c36" font-size="9.5" font-weight="600">连续 3 次 529: 触发模型降级 Fallback</text>
+    <text x="695" y="360" fill="#2d3142" font-size="8.5" font-family="'Geist Mono', monospace">Claude 3.7 ──► 备用 Claude 3.5</text>
+    <text x="695" y="380" fill="#16a34a" font-size="8.5" font-family="'Geist Mono', monospace">保持业务不中断，无缝降级完成任务</text>
+  </g>
+
+  <!-- 判定菱形分发到三大分支连线 -->
+  <path class="active-flow" d="M 400 140 L 180 140 L 180 210" fill="none" stroke="#eb6c36" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+  <path class="active-flow" d="M 500 175 L 500 210" fill="none" stroke="#4f5d75" stroke-width="1.4" marker-end="url(#arrow)"/>
+  <path class="active-flow" d="M 570 155 L 820 155 L 820 210" fill="none" stroke="#4f5d75" stroke-width="1.4" marker-end="url(#arrow)"/>
+
+
+  <!-- ==================== 3. 底部：自愈后 continue 回环 ==================== -->
+  <rect x="330" y="500" width="340" height="50" rx="25" fill="#ffffff" stroke="#eb6c36" stroke-width="1.5"/>
+  <text x="500" y="522" fill="#eb6c36" font-size="11.5" font-weight="700" text-anchor="middle">自愈策略生效 ──► continue 重新发起调用</text>
+  <text x="500" y="538" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">状态更新 · 零人工介入自愈</text>
+
+  <!-- 三个分支汇聚到底部 -->
+  <path class="active-flow" d="M 180 440 L 180 525 L 330 525" fill="none" stroke="#eb6c36" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+  <path class="active-flow" d="M 500 440 L 500 500" fill="none" stroke="#4f5d75" stroke-width="1.4" marker-end="url(#arrow)"/>
+  <path class="active-flow" d="M 820 440 L 820 525 L 670 525" fill="none" stroke="#4f5d75" stroke-width="1.4" marker-end="url(#arrow)"/>
+
+  <!-- 回流至顶部 LLM 调用 -->
+  <path class="active-flow" d="M 330 525 L 20 525 L 20 55 L 340 55" fill="none" stroke="#eb6c36" stroke-width="1.8" marker-end="url(#arrow-accent)"/>
+  <rect x="25" y="270" width="90" height="18" rx="2" fill="#ffffff" stroke="#eb6c36" stroke-width="0.8"/>
+  <text x="70" y="282" fill="#eb6c36" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" font-weight="600">重试回环 (Loop)</text>
+
+</svg>

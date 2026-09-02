@@ -1,0 +1,115 @@
+<svg viewBox="0 0 1000 680" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="s08-title s08-desc" font-family="'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <title id="s08-title">s08: Context Compact 四层阶梯式压缩流水线</title>
+  <desc id="s08-desc">展示从低成本消息级裁剪、微型工具占位、预算守卫到高阶 LLM 摘要归档的四层阶梯压缩策略</desc>
+
+  <style>
+    @keyframes crawlDashes {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: -24; }
+    }
+    @keyframes pulseHaiku {
+      0%, 100% { filter: drop-shadow(0 0 0px rgba(235,108,54,0)); }
+      50% { filter: drop-shadow(0 0 8px rgba(235,108,54,0.45)); }
+    }
+    .active-flow {
+      stroke-dasharray: 6 4;
+      animation: crawlDashes 1.2s linear infinite;
+    }
+    .haiku-box {
+      animation: pulseHaiku 2.5s ease-in-out infinite;
+    }
+  </style>
+
+  <defs>
+    <pattern id="grid-dots" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="0.85" fill="rgba(45,49,66,0.12)"/>
+    </pattern>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+    </marker>
+    <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/>
+    </marker>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="100%" height="100%" fill="#f5f5f5" rx="8"/>
+  <rect width="100%" height="100%" fill="url(#grid-dots)" opacity="0.6"/>
+
+  <!-- ==================== 1. 流动连线 ==================== -->
+  <!-- 原始消息 -> L1 -->
+  <line class="active-flow" x1="500" y1="74" x2="500" y2="105" stroke="#4f5d75" stroke-width="1.4" marker-end="url(#arrow)"/>
+  <!-- L1 -> L2 -->
+  <line class="active-flow" x1="500" y1="185" x2="500" y2="215" stroke="#4f5d75" stroke-width="1.4" marker-end="url(#arrow)"/>
+  <!-- L2 -> L3 -->
+  <line class="active-flow" x1="500" y1="295" x2="500" y2="325" stroke="#4f5d75" stroke-width="1.4" marker-end="url(#arrow)"/>
+
+  <!-- L3 判定：低于 70% 预算？[YES: 绿色旁路直通 LLM] -->
+  <path class="active-flow" d="M 610 365 L 820 365 L 820 595 L 685 595" fill="none" stroke="#16a34a" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <rect x="690" y="356" width="105" height="18" rx="2" fill="#ffffff" stroke="#16a34a" stroke-width="0.8"/>
+  <text x="742" y="368" fill="#16a34a" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" font-weight="600">空间充裕 · 直接放行</text>
+
+  <!-- L3 判定：高于 70% 预算？[NO: 下探至 L4 摘要] -->
+  <line class="active-flow" x1="500" y1="405" x2="500" y2="445" stroke="#eb6c36" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+  <rect x="508" y="415" width="90" height="18" rx="2" fill="#ffffff" stroke="#eb6c36" stroke-width="0.8"/>
+  <text x="553" y="427" fill="#eb6c36" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" font-weight="600">逼近极限 · 触发 L4</text>
+
+  <!-- L4 摘要后 -> 最终送入 LLM -->
+  <line class="active-flow" x1="500" y1="545" x2="500" y2="575" stroke="#eb6c36" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+
+
+  <!-- ==================== 2. 核心层级节点 ==================== -->
+
+  <!-- ① 原始膨胀上下文 -->
+  <g id="node-input">
+    <rect x="340" y="32" width="320" height="42" rx="21" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+    <text x="500" y="52" fill="#2d3142" font-size="12" font-weight="600" text-anchor="middle">长对话执行流 (messages[] 持续膨胀)</text>
+    <text x="500" y="65" fill="#7a8399" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">多轮调用累积 50+ 条交互与巨量文件输出</text>
+  </g>
+
+  <!-- ② Layer 1: snip_compact -->
+  <g id="node-l1">
+    <rect x="250" y="105" width="500" height="80" rx="8" fill="#ffffff" stroke="#4f5d75" stroke-width="1.2"/>
+    <rect x="262" y="97" width="135" height="16" rx="2" fill="#ececec" stroke="#4f5d75" stroke-width="0.8"/>
+    <text x="329" y="108" fill="#2d3142" font-size="7.5" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">LAYER 1 · 0 API 成本</text>
+    <text x="500" y="132" fill="#2d3142" font-size="12" font-weight="600" text-anchor="middle">snip_compact (消息级中间裁剪)</text>
+    <text x="500" y="152" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">消息数 &gt; 50 条时：保留头部 3 条 + 尾部 47 条，中间折叠为 [snipped N messages]</text>
+    <text x="500" y="170" fill="#16a34a" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">🛡 边界保护：严禁拆散 tool_use 与紧随其后的 tool_result</text>
+  </g>
+
+  <!-- ③ Layer 2: micro_compact -->
+  <g id="node-l2">
+    <rect x="250" y="215" width="500" height="80" rx="8" fill="#ffffff" stroke="#4f5d75" stroke-width="1.2"/>
+    <rect x="262" y="207" width="135" height="16" rx="2" fill="#ececec" stroke="#4f5d75" stroke-width="0.8"/>
+    <text x="329" y="218" fill="#2d3142" font-size="7.5" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">LAYER 2 · 0 API 成本</text>
+    <text x="500" y="242" fill="#2d3142" font-size="12" font-weight="600" text-anchor="middle">micro_compact (微型工具输出占位)</text>
+    <text x="500" y="262" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">读文件/长日志占用过大？仅保留最近 3 个 tool_result 全量内容</text>
+    <text x="500" y="280" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">更早之前的庞大输出就地替换为轻量占位符 [Output truncated...]</text>
+  </g>
+
+  <!-- ④ Layer 3: budget_compact 判定菱形 -->
+  <g id="node-l3">
+    <polygon points="500,325 610,365 500,405 390,365" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+    <text x="500" y="362" fill="#2d3142" font-size="10.5" font-weight="600" text-anchor="middle">Layer 3: 预算守卫</text>
+    <text x="500" y="376" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">Token 占用 &lt; 70% ?</text>
+  </g>
+
+  <!-- ⑤ Layer 4: auto_compact (Haiku 摘要) -->
+  <g id="node-l4" class="haiku-box">
+    <rect x="250" y="445" width="500" height="100" rx="8" fill="#ffffff" stroke="#eb6c36" stroke-width="1.6"/>
+    <rect x="262" y="437" width="145" height="16" rx="2" fill="#eb6c36" stroke="#eb6c36" stroke-width="0.8"/>
+    <text x="334" y="448" fill="#ffffff" font-size="7.5" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">LAYER 4 · 1 次轻量 API</text>
+    <text x="500" y="474" fill="#2d3142" font-size="12" font-weight="600" text-anchor="middle">auto_compact (调用 Haiku 进行系统性摘要归档)</text>
+    <text x="500" y="494" fill="#eb6c36" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">提炼 4 大要素：1.初始目标 2.已完成步骤 3.当前排查状态 4.关键约束</text>
+    <text x="500" y="512" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">将旧历史折叠为单个 &lt;summary_of_previous_work&gt; 块，上下文立减 80%！</text>
+    <text x="500" y="530" fill="#16a34a" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">💡 应急防护：遇 prompt_too_long 自动触发 Reactive Compact 自愈重试</text>
+  </g>
+
+  <!-- ⑥ 最终安全送入 LLM -->
+  <g id="node-output">
+    <rect x="315" y="575" width="370" height="42" rx="21" fill="rgba(22,163,74,0.06)" stroke="#16a34a" stroke-width="1.4"/>
+    <text x="500" y="595" fill="#166534" font-size="12" font-weight="700" text-anchor="middle">净化后的安全上下文 ──► 送入 Claude 模型推理</text>
+    <text x="500" y="608" fill="#166534" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">永不爆窗 · 支持数百轮超长连续会话</text>
+  </g>
+
+</svg>

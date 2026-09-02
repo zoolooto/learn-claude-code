@@ -1,0 +1,129 @@
+<svg viewBox="0 0 1000 680" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="s18-title s18-desc" font-family="'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <title id="s18-title">s18: Worktree Isolation 目录沙箱与 Git 分支物理隔离拓扑图</title>
+  <desc id="s18-desc">展示主仓库与 .worktrees/ 独立分支工作目录的绑定、多 Agent 并行无踩踏开发与最终合并归档机制</desc>
+
+  <style>
+    @keyframes crawlDashes {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: -24; }
+    }
+    @keyframes pulseWorktree {
+      0%, 100% { filter: drop-shadow(0 0 0px rgba(235,108,54,0)); }
+      50% { filter: drop-shadow(0 0 10px rgba(235,108,54,0.45)); }
+    }
+    .active-flow {
+      stroke-dasharray: 6 4;
+      animation: crawlDashes 1.2s linear infinite;
+    }
+    .wt-glow {
+      animation: pulseWorktree 2.5s ease-in-out infinite;
+    }
+  </style>
+
+  <defs>
+    <pattern id="grid-dots" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="0.85" fill="rgba(45,49,66,0.12)"/>
+    </pattern>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+    </marker>
+    <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/>
+    </marker>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="100%" height="100%" fill="#f5f5f5" rx="8"/>
+  <rect width="100%" height="100%" fill="url(#grid-dots)" opacity="0.6"/>
+
+  <!-- ==================== 1. 顶部：主仓库与任务绑定中枢 ==================== -->
+  <g id="main-repo">
+    <rect x="50" y="30" width="900" height="120" rx="8" fill="#ffffff" stroke="#2d3142" stroke-width="1.4"/>
+    <rect x="50" y="30" width="900" height="34" rx="8" fill="#ececec"/>
+    <rect x="50" y="52" width="900" height="12" fill="#ececec"/>
+    <text x="70" y="52" fill="#2d3142" font-size="12" font-weight="700">主 Git 仓库 (Root Repository · main 分支)</text>
+    <text x="750" y="52" fill="#16a34a" font-size="8.5" font-family="'Geist Mono', monospace">Git Worktree Engine</text>
+
+    <text x="70" y="85" fill="#2d3142" font-size="10.5" font-weight="600">任务与 Worktree 绑定原则：Task.worktree = "auth-refactor"</text>
+    <text x="70" y="105" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace">git worktree add .worktrees/auth-refactor -b wt/auth-refactor HEAD</text>
+    <text x="70" y="125" fill="#166534" font-size="8.5" font-weight="600">🛡 物理级别目录与 Git 隔离！各自拥有独立的工作区、暂存区与分支 HEAD</text>
+  </g>
+
+
+  <!-- ==================== 2. 下方：两个并行的独立 Worktree 气室 ==================== -->
+  
+  <!-- 气室 1: Alice's Worktree -->
+  <g id="wt-alice" class="wt-glow">
+    <rect x="50" y="180" width="430" height="470" rx="8" fill="#ffffff" stroke="#eb6c36" stroke-width="1.6"/>
+    <rect x="50" y="180" width="430" height="36" rx="8" fill="rgba(235,108,54,0.12)"/>
+    <rect x="50" y="204" width="430" height="12" fill="rgba(235,108,54,0.12)"/>
+    <text x="70" y="203" fill="#eb6c36" font-size="12" font-weight="700">Alice: .worktrees/auth-refactor/ (分支: wt/auth)</text>
+    <text x="350" y="203" fill="#eb6c36" font-size="8.5" font-family="'Geist Mono', monospace">Task 01</text>
+
+    <!-- 执行内容 -->
+    <rect x="70" y="230" width="390" height="85" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)"/>
+    <text x="85" y="252" fill="#2d3142" font-size="10.5" font-weight="600">工作区 CWD 切换至独立目录：</text>
+    <text x="85" y="272" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace">wt_ctx["path"] = "/project/.worktrees/auth-refactor"</text>
+    <text x="85" y="292" fill="#eb6c36" font-size="8.5" font-family="'Geist Mono', monospace">write_file("config.py", jwt_secret="***")</text>
+
+    <!-- 收益 -->
+    <rect x="70" y="330" width="390" height="150" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+    <text x="85" y="355" fill="#2d3142" font-size="10.5" font-weight="700">隔离保障与安全特性：</text>
+    <text x="85" y="380" fill="#4f5d75" font-size="8.5">• 尽管 Alice 也在改 config.py，但只影响本目录</text>
+    <text x="85" y="402" fill="#4f5d75" font-size="8.5">• 拥有独立的 git status 与 git diff，互不污染</text>
+    <text x="85" y="424" fill="#4f5d75" font-size="8.5">• 任务搞砸时可直接执行 `git worktree remove` 零代价丢弃</text>
+    <text x="85" y="450" fill="#166534" font-size="8.5" font-weight="600">✓ 杜绝多 Agent 协同中的写文件互相踩踏！</text>
+
+    <!-- 合并归档 -->
+    <rect x="70" y="495" width="390" height="135" rx="6" fill="rgba(22,163,74,0.04)" stroke="#16a34a" stroke-width="1.2"/>
+    <text x="85" y="520" fill="#166534" font-size="11" font-weight="700">任务完工与合并清理：</text>
+    <text x="85" y="542" fill="#2d3142" font-size="8.5">• 运行测试通过后提交：git commit -m "feat: auth"</text>
+    <text x="85" y="562" fill="#2d3142" font-size="8.5">• 合并回 main 分支：git merge wt/auth-refactor</text>
+    <text x="85" y="585" fill="#166534" font-size="8.5" font-family="'Geist Mono', monospace">remove_worktree("auth-refactor")</text>
+    <text x="85" y="610" fill="#166534" font-size="8" font-weight="600">✓ 磁盘保持干净整洁，代码优雅合流</text>
+  </g>
+
+  <!-- 气室 2: Bob's Worktree -->
+  <g id="wt-bob">
+    <rect x="520" y="180" width="430" height="470" rx="8" fill="#ffffff" stroke="#2e5aa8" stroke-width="1.4"/>
+    <rect x="520" y="180" width="430" height="36" rx="8" fill="rgba(46,90,168,0.08)"/>
+    <rect x="520" y="204" width="430" height="12" fill="rgba(46,90,168,0.08)"/>
+    <text x="540" y="203" fill="#2e5aa8" font-size="12" font-weight="700">Bob: .worktrees/ui-login/ (分支: wt/ui-login)</text>
+    <text x="820" y="203" fill="#2e5aa8" font-size="8.5" font-family="'Geist Mono', monospace">Task 02</text>
+
+    <!-- 执行内容 -->
+    <rect x="540" y="230" width="390" height="85" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)"/>
+    <text x="555" y="252" fill="#2d3142" font-size="10.5" font-weight="600">工作区 CWD 切换至独立目录：</text>
+    <text x="555" y="272" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace">wt_ctx["path"] = "/project/.worktrees/ui-login"</text>
+    <text x="555" y="292" fill="#2e5aa8" font-size="8.5" font-family="'Geist Mono', monospace">write_file("config.py", ui_theme="dark")</text>
+
+    <!-- 收益 -->
+    <rect x="540" y="330" width="390" height="150" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+    <text x="555" y="355" fill="#2d3142" font-size="10.5" font-weight="700">并行独立开发：</text>
+    <text x="555" y="380" fill="#4f5d75" font-size="8.5">• Bob 正在编写前端 React 登录组件与样式</text>
+    <text x="555" y="402" fill="#4f5d75" font-size="8.5">• 即使同时运行 `npm test`，也不会读到 Alice 的中间破损代码</text>
+    <text x="555" y="424" fill="#4f5d75" font-size="8.5">• 两个独立 Agent 可在同一时刻以 100% 算力全速推进！</text>
+    <text x="555" y="450" fill="#166534" font-size="8.5" font-weight="600">✓ 真正实现了多 Agent 的并发线速开发！</text>
+
+    <!-- 合并归档 -->
+    <rect x="540" y="495" width="390" height="135" rx="6" fill="rgba(22,163,74,0.04)" stroke="#16a34a" stroke-width="1.2"/>
+    <text x="555" y="520" fill="#166534" font-size="11" font-weight="700">任务完工与合并清理：</text>
+    <text x="555" y="542" fill="#2d3142" font-size="8.5">• 提交 UI 代码：git commit -m "feat: login page"</text>
+    <text x="555" y="562" fill="#2d3142" font-size="8.5">• 合并回 main 分支：git merge wt/ui-login</text>
+    <text x="555" y="585" fill="#166534" font-size="8.5" font-family="'Geist Mono', monospace">remove_worktree("ui-login")</text>
+    <text x="555" y="610" fill="#166534" font-size="8" font-weight="600">✓ 独立气室完成使命，干净收尾</text>
+  </g>
+
+
+  <!-- ==================== 3. 派发与合流连线 ==================== -->
+  
+  <!-- 主仓库派发至 Alice Worktree -->
+  <path class="active-flow" d="M 280 150 L 280 180" fill="none" stroke="#eb6c36" stroke-width="1.8" marker-end="url(#arrow-accent)"/>
+  
+  <!-- 主仓库派发至 Bob Worktree -->
+  <path class="active-flow" d="M 720 150 L 720 180" fill="none" stroke="#2e5aa8" stroke-width="1.8" marker-end="url(#arrow-blue)"/>
+
+</svg>

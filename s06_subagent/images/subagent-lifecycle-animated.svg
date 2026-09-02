@@ -1,0 +1,120 @@
+<svg viewBox="0 0 1000 680" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="s06-title s06-desc" font-family="'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <title id="s06-title">s06: Subagent 子智能体与上下文隔离拓扑</title>
+  <desc id="s06-desc">展示主 Agent 上下文与子 Agent 独立沙箱之间的派生、执行、丢弃与精简回传闭环</desc>
+
+  <style>
+    @keyframes crawlDashes {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: -24; }
+    }
+    @keyframes pulseSubagent {
+      0%, 100% { filter: drop-shadow(0 0 0px rgba(235,108,54,0)); }
+      50% { filter: drop-shadow(0 0 10px rgba(235,108,54,0.4)); }
+    }
+    .active-flow {
+      stroke-dasharray: 6 4;
+      animation: crawlDashes 1.2s linear infinite;
+    }
+    .subagent-box {
+      animation: pulseSubagent 3s ease-in-out infinite;
+    }
+  </style>
+
+  <defs>
+    <pattern id="grid-dots" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="0.85" fill="rgba(45,49,66,0.12)"/>
+    </pattern>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+    </marker>
+    <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/>
+    </marker>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="100%" height="100%" fill="#f5f5f5" rx="8"/>
+  <rect width="100%" height="100%" fill="url(#grid-dots)" opacity="0.6"/>
+
+  <!-- ==================== 1. 主 Agent 泳道 (左) ==================== -->
+  <rect x="40" y="30" width="420" height="620" rx="10" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+  <rect x="40" y="30" width="420" height="42" rx="10" fill="#ececec"/>
+  <rect x="40" y="60" width="420" height="12" fill="#ececec"/>
+  <text x="60" y="56" fill="#2d3142" font-size="13" font-weight="700">主 Agent 上下文 (Main Context)</text>
+  <text x="320" y="56" fill="#7a8399" font-size="8.5" font-family="'Geist Mono', monospace">messages[] 保留核心目标</text>
+
+  <!-- 主 Agent 步骤 -->
+  <!-- ① 用户输入 -->
+  <rect x="65" y="90" width="370" height="50" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)" stroke-width="1"/>
+  <text x="80" y="112" fill="#2d3142" font-size="11.5" font-weight="600">1. 用户: "排查并修复 auth.py 中的 bug"</text>
+  <text x="80" y="128" fill="#7a8399" font-size="8.5" font-family="'Geist Mono', monospace">收到高复杂度任务</text>
+
+  <!-- ② 派发子任务 -->
+  <rect x="65" y="170" width="370" height="56" rx="6" fill="#ffffff" stroke="#eb6c36" stroke-width="1.4"/>
+  <text x="80" y="193" fill="#eb6c36" font-size="11.5" font-weight="600">2. 调用 subagent(task_prompt)</text>
+  <text x="80" y="211" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace">派发任务："追踪 auth.py 依赖并跑日志"</text>
+
+  <!-- ③ 等待并接收精简结果 -->
+  <rect x="65" y="440" width="370" height="60" rx="6" fill="#ffffff" stroke="#16a34a" stroke-width="1.4"/>
+  <text x="80" y="464" fill="#16a34a" font-size="11.5" font-weight="600">3. 接收 tool_result (精简摘要)</text>
+  <text x="80" y="483" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace">"排查完毕：缺少 expired 校验字段。" (~100 tokens)</text>
+
+  <!-- ④ 精准修复 -->
+  <rect x="65" y="530" width="370" height="50" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+  <text x="80" y="552" fill="#2d3142" font-size="11.5" font-weight="600">4. edit_file("auth.py") 完成精准修复</text>
+  <text x="80" y="568" fill="#16a34a" font-size="8.5" font-family="'Geist Mono', monospace">主上下文保持纯净，无任何长日志污染！</text>
+
+  <!-- 主 Agent 内部连线 -->
+  <line class="active-flow" x1="250" y1="140" x2="250" y2="170" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <line class="active-flow" x1="250" y1="500" x2="250" y2="530" stroke="#16a34a" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+
+  <!-- ==================== 2. 子 Agent 隔离沙箱 (右) ==================== -->
+  <rect x="520" y="30" width="440" height="620" rx="10" fill="#ffffff" stroke="#eb6c36" stroke-width="1.6" class="subagent-box"/>
+  <rect x="520" y="30" width="440" height="42" rx="10" fill="rgba(235,108,54,0.12)"/>
+  <rect x="520" y="60" width="440" height="12" fill="rgba(235,108,54,0.12)"/>
+  <text x="540" y="56" fill="#eb6c36" font-size="13" font-weight="700">子 Agent 独立沙箱 (Fresh messages[])</text>
+  <text x="810" y="56" fill="#eb6c36" font-size="8.5" font-family="'Geist Mono', monospace">用完即焚 · 无递归</text>
+
+  <!-- 子 Agent 内部执行步骤 -->
+  <rect x="545" y="90" width="390" height="44" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)" stroke-width="1"/>
+  <text x="560" y="112" fill="#2d3142" font-size="11" font-weight="600">Turn 1: read_file("auth.py")</text>
+  <text x="560" y="125" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace">读取 500 行源码 (~2,000 tokens)</text>
+
+  <rect x="545" y="150" width="390" height="44" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)" stroke-width="1"/>
+  <text x="560" y="172" fill="#2d3142" font-size="11" font-weight="600">Turn 2: glob("src/**/*.py")</text>
+  <text x="560" y="185" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace">扫描 80 个依赖文件路径</text>
+
+  <rect x="545" y="210" width="390" height="44" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)" stroke-width="1"/>
+  <text x="560" y="232" fill="#2d3142" font-size="11" font-weight="600">Turn 3: bash("pytest -k test_auth")</text>
+  <text x="560" y="245" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace">跑出 300 行失败堆栈与追踪日志</text>
+
+  <rect x="545" y="270" width="390" height="44" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)" stroke-width="1"/>
+  <text x="560" y="292" fill="#2d3142" font-size="11" font-weight="600">Turn 4: 提炼核心成因并输出总结</text>
+  <text x="560" y="305" fill="#eb6c36" font-size="8" font-family="'Geist Mono', monospace">锁定：TokenVerifier 遗漏 expired 判定</text>
+
+  <!-- 垃圾销毁提醒 -->
+  <rect x="545" y="340" width="390" height="44" rx="6" fill="rgba(45,49,66,0.04)" stroke="rgba(45,49,66,0.2)" stroke-dasharray="4 2"/>
+  <text x="740" y="360" fill="#7a8399" font-size="10.5" font-weight="600" text-anchor="middle">🔥 销毁 sub_messages[] (5,000+ Tokens 丢弃)</text>
+  <text x="740" y="374" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">文件系统的写入与修改真实保留在工作区</text>
+
+  <!-- 子 Agent 连线 -->
+  <line class="active-flow" x1="740" y1="134" x2="740" y2="150" stroke="#eb6c36" stroke-width="1.2" marker-end="url(#arrow-accent)"/>
+  <line class="active-flow" x1="740" y1="194" x2="740" y2="210" stroke="#eb6c36" stroke-width="1.2" marker-end="url(#arrow-accent)"/>
+  <line class="active-flow" x1="740" y1="254" x2="740" y2="270" stroke="#eb6c36" stroke-width="1.2" marker-end="url(#arrow-accent)"/>
+  <line class="active-flow" x1="740" y1="314" x2="740" y2="340" stroke="#eb6c36" stroke-width="1.2" marker-end="url(#arrow-accent)"/>
+
+
+  <!-- ==================== 3. 跨泳道派发与回传箭头 ==================== -->
+  
+  <!-- 派发箭头 (主 -> 子) -->
+  <path class="active-flow" d="M 435 198 L 520 198" fill="none" stroke="#eb6c36" stroke-width="1.8" marker-end="url(#arrow-accent)"/>
+  <rect x="445" y="180" width="65" height="16" rx="2" fill="#ffffff" stroke="#eb6c36" stroke-width="0.8"/>
+  <text x="477" y="191" fill="#eb6c36" font-size="7.5" font-family="'Geist Mono', monospace" text-anchor="middle">spawn()</text>
+
+  <!-- 结果回传箭头 (子 -> 主) -->
+  <path class="active-flow" d="M 545 470 L 435 470" fill="none" stroke="#16a34a" stroke-width="1.8" marker-end="url(#arrow)"/>
+  <rect x="445" y="452" width="65" height="16" rx="2" fill="#ffffff" stroke="#16a34a" stroke-width="0.8"/>
+  <text x="477" y="463" fill="#16a34a" font-size="7.5" font-family="'Geist Mono', monospace" text-anchor="middle">return txt</text>
+
+</svg>

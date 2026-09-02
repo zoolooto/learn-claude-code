@@ -1,0 +1,130 @@
+<svg viewBox="0 0 1000 680" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="s12-title s12-desc" font-family="'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <title id="s12-title">s12: Task System 磁盘持久化任务图与依赖解锁拓扑图</title>
+  <desc id="s12-desc">展示基于 .tasks/ 磁盘文件持久化存储、blockedBy DAG 依赖图与自动解锁机制的跨会话任务系统</desc>
+
+  <style>
+    @keyframes crawlDashes {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: -24; }
+    }
+    @keyframes pulseDag {
+      0%, 100% { filter: drop-shadow(0 0 0px rgba(235,108,54,0)); }
+      50% { filter: drop-shadow(0 0 8px rgba(235,108,54,0.45)); }
+    }
+    .active-flow {
+      stroke-dasharray: 6 4;
+      animation: crawlDashes 1.2s linear infinite;
+    }
+    .dag-node {
+      animation: pulseDag 2.5s ease-in-out infinite;
+    }
+  </style>
+
+  <defs>
+    <pattern id="grid-dots" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="0.85" fill="rgba(45,49,66,0.12)"/>
+    </pattern>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+    </marker>
+    <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#16a34a"/>
+    </marker>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="100%" height="100%" fill="#f5f5f5" rx="8"/>
+  <rect width="100%" height="100%" fill="url(#grid-dots)" opacity="0.6"/>
+
+  <!-- ==================== 1. 左侧：持久化文件系统 (.tasks/ 目录) ==================== -->
+  <rect x="40" y="30" width="400" height="620" rx="8" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+  <rect x="40" y="30" width="400" height="38" rx="8" fill="#ececec"/>
+  <rect x="40" y="56" width="400" height="12" fill="#ececec"/>
+  <text x="60" y="54" fill="#2d3142" font-size="12" font-weight="700">磁盘持久化存储库 (.tasks/{id}.json)</text>
+  <text x="320" y="54" fill="#16a34a" font-size="8.5" font-family="'Geist Mono', monospace">跨会话永久保留</text>
+
+  <!-- Task 1: schema (completed) -->
+  <rect x="60" y="85" width="360" height="105" rx="6" fill="rgba(22,163,74,0.04)" stroke="#16a34a" stroke-width="1.2"/>
+  <rect x="72" y="77" width="90" height="16" rx="2" fill="#16a34a"/>
+  <text x="117" y="88" fill="#ffffff" font-size="7.5" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle">COMPLETED ✓</text>
+  <text x="80" y="108" fill="#166534" font-size="11" font-weight="700">Task 1: setup_db_schema.json</text>
+  <text x="80" y="125" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace">id: task_01 · owner: agent_lead</text>
+  <text x="80" y="142" fill="#2d3142" font-size="8.5">blockedBy: [] (无前置依赖，首发完成)</text>
+  <text x="80" y="160" fill="#16a34a" font-size="8" font-weight="600">已解锁后置任务 Task 2 &amp; Task 3！</text>
+
+  <!-- Task 2: api (in_progress) -->
+  <rect x="60" y="210" width="360" height="105" rx="6" fill="#ffffff" stroke="#eb6c36" stroke-width="1.4" class="dag-node"/>
+  <rect x="72" y="202" width="105" height="16" rx="2" fill="#eb6c36"/>
+  <text x="124" y="213" fill="#ffffff" font-size="7.5" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle">IN PROGRESS ▶</text>
+  <text x="80" y="233" fill="#eb6c36" font-size="11" font-weight="700">Task 2: create_api_endpoints.json</text>
+  <text x="80" y="250" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace">id: task_02 · owner: backend_agent</text>
+  <text x="80" y="268" fill="#2d3142" font-size="8.5">blockedBy: ["task_01"] (已解锁，正在编写)</text>
+  <text x="80" y="286" fill="#eb6c36" font-size="8" font-weight="600">正在阻挡 Task 4 (write_tests)</text>
+
+  <!-- Task 3: docs (pending - unlocked) -->
+  <rect x="60" y="335" width="360" height="95" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)"/>
+  <rect x="72" y="327" width="90" height="16" rx="2" fill="#ececec" stroke="#4f5d75" stroke-width="0.8"/>
+  <text x="117" y="338" fill="#2d3142" font-size="7.5" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle">UNLOCKED ⏸</text>
+  <text x="80" y="358" fill="#2d3142" font-size="11" font-weight="700">Task 3: write_architecture_docs.json</text>
+  <text x="80" y="375" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace">id: task_03 · owner: null (可认领)</text>
+  <text x="80" y="393" fill="#2d3142" font-size="8.5">blockedBy: ["task_01"] (依赖已全绿，立即可做)</text>
+
+  <!-- Task 4: tests (blocked) -->
+  <rect x="60" y="450" width="360" height="95" rx="6" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.2)" stroke-dasharray="4 2"/>
+  <rect x="72" y="442" width="75" height="16" rx="2" fill="#ececec" stroke="#4f5d75" stroke-width="0.8"/>
+  <text x="109" y="453" fill="#7a8399" font-size="7.5" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle">BLOCKED 🔒</text>
+  <text x="80" y="473" fill="#7a8399" font-size="11" font-weight="700">Task 4: integration_tests.json</text>
+  <text x="80" y="490" fill="#7a8399" font-size="8.5" font-family="'Geist Mono', monospace">id: task_04 · blockedBy: ["task_02"]</text>
+  <text x="80" y="508" fill="#d97706" font-size="8.5">⛔ 严禁越级执行！等待 Task 2 完成自动解锁</text>
+
+  <rect x="60" y="560" width="360" height="70" rx="4" fill="rgba(45,49,66,0.02)"/>
+  <text x="240" y="585" fill="#2d3142" font-size="9" font-weight="600" text-anchor="middle">5 大 Task 工具标准集：</text>
+  <text x="240" y="605" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">create_task · get_task · update_task · list_tasks · task_claim</text>
+
+
+  <!-- ==================== 2. 右侧：有向无环图 (DAG Dependency Tree) ==================== -->
+  <rect x="480" y="30" width="480" height="620" rx="8" fill="#ffffff" stroke="#eb6c36" stroke-width="1.6"/>
+  <rect x="480" y="30" width="480" height="38" rx="8" fill="rgba(235,108,54,0.12)"/>
+  <rect x="480" y="56" width="480" height="12" fill="rgba(235,108,54,0.12)"/>
+  <text x="500" y="54" fill="#eb6c36" font-size="12" font-weight="700">任务依赖关系图 (DAG Execution Flow)</text>
+
+  <!-- DAG 节点 1: schema (Root) -->
+  <rect x="620" y="90" width="200" height="60" rx="6" fill="#ffffff" stroke="#16a34a" stroke-width="1.4"/>
+  <text x="720" y="115" fill="#166534" font-size="11" font-weight="700" text-anchor="middle">1. setup schema ✓</text>
+  <text x="720" y="132" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">Database Ready</text>
+
+  <!-- DAG 节点 2: API -->
+  <rect x="520" y="230" width="180" height="60" rx="6" fill="#ffffff" stroke="#eb6c36" stroke-width="1.6" class="dag-node"/>
+  <text x="610" y="255" fill="#eb6c36" font-size="11" font-weight="700" text-anchor="middle">2. API endpoints ▶</text>
+  <text x="610" y="272" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">In Progress</text>
+
+  <!-- DAG 节点 3: Docs -->
+  <rect x="760" y="230" width="180" height="60" rx="6" fill="#ffffff" stroke="#4f5d75" stroke-width="1.2"/>
+  <text x="850" y="255" fill="#2d3142" font-size="11" font-weight="700" text-anchor="middle">3. write docs ⏸</text>
+  <text x="850" y="272" fill="#16a34a" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">Unlocked (Ready)</text>
+
+  <!-- DAG 节点 4: Tests -->
+  <rect x="520" y="370" width="180" height="60" rx="6" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.3)" stroke-dasharray="4 2"/>
+  <text x="610" y="395" fill="#7a8399" font-size="11" font-weight="700" text-anchor="middle">4. write tests 🔒</text>
+  <text x="610" y="412" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">Blocked by API</text>
+
+  <!-- DAG 连线 -->
+  <!-- 1 -> 2 (schema -> API) -->
+  <path class="active-flow" d="M 680 150 L 610 230" fill="none" stroke="#eb6c36" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+  <!-- 1 -> 3 (schema -> Docs) -->
+  <path class="active-flow" d="M 760 150 L 850 230" fill="none" stroke="#16a34a" stroke-width="1.6" marker-end="url(#arrow-green)"/>
+  <!-- 2 -> 4 (API -> Tests) -->
+  <line class="active-flow" x1="610" y1="290" x2="610" y2="370" stroke="#7a8399" stroke-width="1.4" stroke-dasharray="4 2" marker-end="url(#arrow)"/>
+
+  <!-- 底部对比卡片 -->
+  <rect x="500" y="470" width="440" height="160" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)"/>
+  <text x="515" y="495" fill="#2d3142" font-size="11" font-weight="700">TodoWrite (s05) vs Task System (s12) 核心差异：</text>
+  <text x="515" y="520" fill="#4f5d75" font-size="8.5">• 存储介质：从单次会话内存 ──► 升级为磁盘文件持久化</text>
+  <text x="515" y="540" fill="#4f5d75" font-size="8.5">• 依赖拓扑：从简单平铺列表 ──► 升级为 blockedBy 有向无环图</text>
+  <text x="515" y="560" fill="#4f5d75" font-size="8.5">• 多 Agent 支持：支持 owner 认领、跨 Agent 依赖流转</text>
+  <text x="515" y="585" fill="#166534" font-size="9" font-weight="600">🚀 奠定了 s15 多 Agent 团队与复杂项目工程协作的坚实底座！</text>
+
+</svg>

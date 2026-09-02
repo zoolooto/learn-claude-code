@@ -1,0 +1,145 @@
+<svg viewBox="0 0 1000 680" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="s17-title s17-desc" font-family="'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <title id="s17-title">s17: Autonomous Agents 自治认领与自组织协同拓扑图</title>
+  <desc id="s17-desc">展示 WORK、IDLE、SHUTDOWN 三阶段状态机，队友空闲时自动轮询任务板并原子抢占未认领任务的自组织机制</desc>
+
+  <style>
+    @keyframes crawlDashes {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: -24; }
+    }
+    @keyframes pulseIdle {
+      0%, 100% { filter: drop-shadow(0 0 0px rgba(235,108,54,0)); }
+      50% { filter: drop-shadow(0 0 10px rgba(235,108,54,0.45)); }
+    }
+    .active-flow {
+      stroke-dasharray: 6 4;
+      animation: crawlDashes 1.2s linear infinite;
+    }
+    .idle-glow {
+      animation: pulseIdle 2.5s ease-in-out infinite;
+    }
+  </style>
+
+  <defs>
+    <pattern id="grid-dots" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="0.85" fill="rgba(45,49,66,0.12)"/>
+    </pattern>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+    </marker>
+    <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#16a34a"/>
+    </marker>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="100%" height="100%" fill="#f5f5f5" rx="8"/>
+  <rect width="100%" height="100%" fill="url(#grid-dots)" opacity="0.6"/>
+
+  <!-- ==================== 1. 顶部：公共任务看板 (.tasks/ 共享池) ==================== -->
+  <rect x="50" y="30" width="900" height="130" rx="8" fill="#ffffff" stroke="#2d3142" stroke-width="1.4"/>
+  <rect x="50" y="30" width="900" height="34" rx="8" fill="#ececec"/>
+  <rect x="50" y="52" width="900" height="12" fill="#ececec"/>
+  <text x="70" y="52" fill="#2d3142" font-size="12" font-weight="700">公共任务看板池 (Public Task Board · .tasks/*.json)</text>
+  <text x="730" y="52" fill="#16a34a" font-size="8.5" font-family="'Geist Mono', monospace">去中心化 · 自助认领</text>
+
+  <!-- 看板卡片列表 -->
+  <rect x="70" y="75" width="260" height="70" rx="6" fill="rgba(22,163,74,0.04)" stroke="#16a34a" stroke-width="1"/>
+  <text x="85" y="96" fill="#166534" font-size="10.5" font-weight="700">Task 01: 数据库表设计 ✓</text>
+  <text x="85" y="114" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace">status: completed · owner: lead</text>
+  <text x="85" y="130" fill="#16a34a" font-size="7.5" font-weight="600">已解锁下游依赖任务</text>
+
+  <rect x="370" y="75" width="260" height="70" rx="6" fill="#ffffff" stroke="#eb6c36" stroke-width="1.4"/>
+  <text x="385" y="96" fill="#eb6c36" font-size="10.5" font-weight="700">Task 02: 编写鉴权 API ⏸ (待认领)</text>
+  <text x="385" y="114" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace">status: pending · owner: null · blockedBy: []</text>
+  <text x="385" y="130" fill="#eb6c36" font-size="7.5" font-weight="600">🌟 无依赖阻碍，立即可抢占！</text>
+
+  <rect x="670" y="75" width="260" height="70" rx="6" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.2)" stroke-dasharray="4 2"/>
+  <text x="685" y="96" fill="#7a8399" font-size="10.5" font-weight="700">Task 03: 编写测试用例 🔒</text>
+  <text x="685" y="114" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace">status: pending · blockedBy: ["Task 02"]</text>
+  <text x="685" y="130" fill="#7a8399" font-size="7.5">依赖未完成，暂时锁定</text>
+
+
+  <!-- ==================== 2. 核心：三阶段自治状态机 (WORK ──► IDLE ──► SHUTDOWN) ==================== -->
+  
+  <!-- 阶段 1: WORK 状态 -->
+  <g id="state-work">
+    <rect x="50" y="240" width="270" height="280" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="1.4"/>
+    <rect x="50" y="240" width="270" height="34" rx="8" fill="rgba(22,163,74,0.1)"/>
+    <rect x="50" y="262" width="270" height="12" fill="rgba(22,163,74,0.1)"/>
+    <text x="65" y="262" fill="#166534" font-size="12" font-weight="700">1. WORK 工作态 (专注执行)</text>
+
+    <text x="65" y="295" fill="#2d3142" font-size="9.5" font-weight="600">• 接收到已认领的具体任务</text>
+    <text x="65" y="315" fill="#4f5d75" font-size="8.5">• 驱动 LLM ──► 调用工具循环</text>
+    <text x="65" y="335" fill="#4f5d75" font-size="8.5">• 编写代码、执行修改、生成成果</text>
+    <text x="65" y="355" fill="#4f5d75" font-size="8.5">• 将 Task 标记为 completed</text>
+
+    <rect x="65" y="380" width="240" height="120" rx="4" fill="#f8f9fa" stroke="rgba(45,49,66,0.1)"/>
+    <text x="75" y="405" fill="#2d3142" font-size="8.5" font-family="'Geist Mono', monospace">工作完毕触发退出条件：</text>
+    <text x="75" y="425" fill="#eb6c36" font-size="8.5" font-family="'Geist Mono', monospace">stop_reason != "tool_use"</text>
+    <text x="75" y="450" fill="#2d3142" font-size="8.5">⚠️ 绝不直接退出线程！</text>
+    <text x="75" y="475" fill="#166534" font-size="9" font-weight="600">──► 自动切入 IDLE 空闲态</text>
+  </g>
+
+  <!-- 阶段 2: IDLE 状态 (核心焦点) -->
+  <g id="state-idle" class="idle-glow">
+    <rect x="365" y="240" width="270" height="280" rx="8" fill="#ffffff" stroke="#eb6c36" stroke-width="1.8"/>
+    <rect x="365" y="240" width="270" height="34" rx="8" fill="rgba(235,108,54,0.12)"/>
+    <rect x="365" y="262" width="270" height="12" fill="rgba(235,108,54,0.12)"/>
+    <text x="380" y="262" fill="#eb6c36" font-size="12" font-weight="700">2. IDLE 空闲轮询态 (主动觅食)</text>
+
+    <text x="380" y="295" fill="#2d3142" font-size="9.5" font-weight="700">每 5 秒执行一次主动轮询：</text>
+    <text x="380" y="318" fill="#4f5d75" font-size="8.5">① 检查个人收件箱 inbox.jsonl</text>
+    <text x="390" y="335" fill="#7a8399" font-size="8">收到关机指令？──► 切入 SHUTDOWN</text>
+    <text x="390" y="352" fill="#7a8399" font-size="8">收到新私信？──► 回到 WORK</text>
+
+    <text x="380" y="380" fill="#eb6c36" font-size="8.5" font-weight="600">② 扫描任务看板 scan_unclaimed_tasks()</text>
+    <text x="390" y="400" fill="#2d3142" font-size="8.5">发现可认领任务？</text>
+    <text x="390" y="420" fill="#166534" font-size="8.5" font-family="'Geist Mono', monospace">claim_task(task_id, my_name)</text>
+    <text x="390" y="440" fill="#166534" font-size="8.5" font-weight="600">原子抢占成功 ──► 立即回到 WORK！</text>
+
+    <text x="380" y="480" fill="#7a8399" font-size="8">连续 60 秒无任务且无消息 ──► 超时退出</text>
+  </g>
+
+  <!-- 阶段 3: SHUTDOWN 状态 -->
+  <g id="state-shutdown">
+    <rect x="680" y="240" width="270" height="280" rx="8" fill="#ffffff" stroke="#4f5d75" stroke-width="1.2"/>
+    <rect x="680" y="240" width="270" height="34" rx="8" fill="#ececec"/>
+    <rect x="680" y="262" width="270" height="12" fill="#ececec"/>
+    <text x="695" y="262" fill="#2d3142" font-size="12" font-weight="700">3. SHUTDOWN 关机态 (体面归档)</text>
+
+    <text x="695" y="295" fill="#2d3142" font-size="9.5" font-weight="600">• 收到关机握手协议</text>
+    <text x="695" y="315" fill="#4f5d75" font-size="8.5">• 向 Lead 发送本次总工作报告</text>
+    <text x="695" y="335" fill="#4f5d75" font-size="8.5">• 释放线程资源与临时文件</text>
+    <text x="695" y="355" fill="#16a34a" font-size="8.5" font-weight="600">✓ 优雅离线，无残留悬空任务</text>
+
+    <rect x="695" y="385" width="240" height="115" rx="4" fill="#f8f9fa" stroke="rgba(45,49,66,0.1)"/>
+    <text x="705" y="410" fill="#2d3142" font-size="9" font-weight="600">中心化派发 vs 自治抢占：</text>
+    <text x="705" y="432" fill="#4f5d75" font-size="8">• s15/s16: Lead 成为性能瓶颈</text>
+    <text x="705" y="452" fill="#eb6c36" font-size="8">• s17: 队友自组织看板认领</text>
+    <text x="705" y="475" fill="#166534" font-size="8.5" font-weight="600">🚀 团队吞吐量呈线性扩展！</text>
+  </g>
+
+
+  <!-- ==================== 3. 状态转换连线 ==================== -->
+  
+  <!-- WORK -> IDLE -->
+  <path class="active-flow" d="M 320 380 L 365 380" fill="none" stroke="#eb6c36" stroke-width="1.8" marker-end="url(#arrow-accent)"/>
+  
+  <!-- IDLE 抢到任务 -> WORK (回环) -->
+  <path class="active-flow" d="M 365 420 L 320 420" fill="none" stroke="#16a34a" stroke-width="1.8" marker-end="url(#arrow-green)"/>
+  <rect x="325" y="405" width="35" height="14" rx="2" fill="#ffffff" stroke="#16a34a" stroke-width="0.8"/>
+  <text x="342" y="415" fill="#16a34a" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle">claim</text>
+
+  <!-- IDLE 收到关机 -> SHUTDOWN -->
+  <path class="active-flow" d="M 635 380 L 680 380" fill="none" stroke="#4f5d75" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <!-- IDLE 扫描顶部看板连线 -->
+  <path class="active-flow" d="M 500 240 L 500 160" fill="none" stroke="#eb6c36" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+  <rect x="460" y="190" width="80" height="16" rx="2" fill="#ffffff" stroke="#eb6c36" stroke-width="0.8"/>
+  <text x="500" y="201" fill="#eb6c36" font-size="7.5" font-family="'Geist Mono', monospace" text-anchor="middle">idle_poll(5s)</text>
+
+</svg>

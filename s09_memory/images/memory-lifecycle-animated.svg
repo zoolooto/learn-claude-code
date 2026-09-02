@@ -1,0 +1,140 @@
+<svg viewBox="0 0 1000 680" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="s09-title s09-desc" font-family="'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <title id="s09-title">s09: Memory 跨会话长期记忆中枢全景图</title>
+  <desc id="s09-desc">展示记忆在会话中的筛选、提取、整理落盘以及跨会话 Prompt Cache 友好注入的生命周期</desc>
+
+  <style>
+    @keyframes crawlDashes {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: -24; }
+    }
+    @keyframes pulseMemory {
+      0%, 100% { filter: drop-shadow(0 0 0px rgba(235,108,54,0)); }
+      50% { filter: drop-shadow(0 0 8px rgba(235,108,54,0.45)); }
+    }
+    .active-flow {
+      stroke-dasharray: 6 4;
+      animation: crawlDashes 1.2s linear infinite;
+    }
+    .memory-hub {
+      animation: pulseMemory 2.5s ease-in-out infinite;
+    }
+  </style>
+
+  <defs>
+    <pattern id="grid-dots" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="0.85" fill="rgba(45,49,66,0.12)"/>
+    </pattern>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+    </marker>
+    <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/>
+    </marker>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="100%" height="100%" fill="#f5f5f5" rx="8"/>
+  <rect width="100%" height="100%" fill="url(#grid-dots)" opacity="0.6"/>
+
+  <!-- ==================== 1. 上半部分：记忆的提取与落盘 (Session 内) ==================== -->
+  
+  <!-- ① 实时对话流 -->
+  <g id="node-dialog">
+    <rect x="50" y="40" width="260" height="50" rx="25" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+    <text x="180" y="62" fill="#2d3142" font-size="11.5" font-weight="600" text-anchor="middle">会话交互 (messages[])</text>
+    <text x="180" y="78" fill="#7a8399" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">"我们项目只用 Tab 缩进"</text>
+  </g>
+
+  <!-- ② 筛选与提取 -->
+  <g id="node-extract">
+    <rect x="360" y="30" width="280" height="70" rx="6" fill="#ffffff" stroke="#4f5d75" stroke-width="1.2"/>
+    <rect x="372" y="22" width="130" height="16" rx="2" fill="#ececec" stroke="#4f5d75" stroke-width="0.8"/>
+    <text x="437" y="33" fill="#2d3142" font-size="7.5" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">1. 筛选 · 2. 提取</text>
+    <text x="500" y="58" fill="#2d3142" font-size="11" font-weight="600" text-anchor="middle">提取器：识别长期有效共识</text>
+    <text x="500" y="76" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">过滤临时废话，提炼 YAML Frontmatter</text>
+  </g>
+
+  <!-- ③ 整理与落盘 -->
+  <g id="node-consolidate">
+    <rect x="690" y="30" width="260" height="70" rx="6" fill="#ffffff" stroke="#4f5d75" stroke-width="1.2"/>
+    <rect x="702" y="22" width="130" height="16" rx="2" fill="#ececec" stroke="#4f5d75" stroke-width="0.8"/>
+    <text x="767" y="33" fill="#2d3142" font-size="7.5" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">3. 整理 (Consolidation)</text>
+    <text x="820" y="58" fill="#2d3142" font-size="11" font-weight="600" text-anchor="middle">写入 `.memory/` 文件库</text>
+    <text x="820" y="76" fill="#16a34a" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">自动重新生成 MEMORY.md 索引</text>
+  </g>
+
+  <!-- 提取连线 -->
+  <line class="active-flow" x1="310" y1="65" x2="360" y2="65" stroke="#4f5d75" stroke-width="1.4" marker-end="url(#arrow)"/>
+  <line class="active-flow" x1="640" y1="65" x2="690" y2="65" stroke="#4f5d75" stroke-width="1.4" marker-end="url(#arrow)"/>
+
+
+  <!-- ==================== 2. 中间：持久化文件系统枢纽 (.memory/ 仓库) ==================== -->
+  <rect x="50" y="150" width="900" height="230" rx="8" fill="#ffffff" stroke="#eb6c36" stroke-width="1.6" class="memory-hub"/>
+  <rect x="50" y="150" width="900" height="38" rx="8" fill="rgba(235,108,54,0.12)"/>
+  <rect x="50" y="176" width="900" height="12" fill="rgba(235,108,54,0.12)"/>
+  <text x="70" y="174" fill="#eb6c36" font-size="12" font-weight="700">持久化文件系统 (Persistent Memory Store · .memory/)</text>
+  <text x="740" y="174" fill="#eb6c36" font-size="8.5" font-family="'Geist Mono', monospace">人类可读 · 跨会话永久保留</text>
+
+  <!-- 4 大记忆分类卡片 -->
+  <!-- user -->
+  <rect x="70" y="200" width="200" height="160" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)"/>
+  <text x="85" y="222" fill="#eb6c36" font-size="11" font-weight="600">👤 User (用户偏好)</text>
+  <text x="85" y="242" fill="#2d3142" font-size="8.5" font-family="'Geist Mono', monospace">user-tabs.md</text>
+  <text x="85" y="260" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace">代码缩进必须用 Tab</text>
+  <text x="85" y="278" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace">不接受空格缩进</text>
+
+  <!-- feedback -->
+  <rect x="290" y="200" width="200" height="160" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)"/>
+  <text x="305" y="222" fill="#2d3142" font-size="11" font-weight="600">🛠 Feedback (纠错教训)</text>
+  <text x="305" y="242" fill="#2d3142" font-size="8.5" font-family="'Geist Mono', monospace">no-db-mock.md</text>
+  <text x="305" y="260" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace">测试不要 mock 数据库</text>
+  <text x="305" y="278" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace">直接连本地 SQLite 测试库</text>
+
+  <!-- project -->
+  <rect x="510" y="200" width="200" height="160" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)"/>
+  <text x="525" y="222" fill="#2d3142" font-size="11" font-weight="600">🏛 Project (架构决策)</text>
+  <text x="525" y="242" fill="#2d3142" font-size="8.5" font-family="'Geist Mono', monospace">auth-jwt.md</text>
+  <text x="525" y="260" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace">鉴权模块改用 JWT</text>
+  <text x="525" y="278" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace">配合微服务无状态网关</text>
+
+  <!-- reference -->
+  <rect x="730" y="200" width="200" height="160" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)"/>
+  <text x="745" y="222" fill="#2d3142" font-size="11" font-weight="600">📑 Reference (资源指针)</text>
+  <text x="745" y="242" fill="#2d3142" font-size="8.5" font-family="'Geist Mono', monospace">api-docs.md</text>
+  <text x="745" y="260" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace">API 接口定义位于</text>
+  <text x="745" y="278" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace">docs/api-v2.md</text>
+
+  <!-- 落盘连线 -->
+  <path class="active-flow" d="M 820 100 L 820 150" fill="none" stroke="#eb6c36" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+
+
+  <!-- ==================== 3. 下半部分：跨会话与 Prompt Cache 友好注入 ==================== -->
+  
+  <rect x="50" y="420" width="900" height="230" rx="8" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+  <rect x="50" y="420" width="900" height="38" rx="8" fill="#ececec"/>
+  <rect x="50" y="446" width="900" height="12" fill="#ececec"/>
+  <text x="70" y="444" fill="#2d3142" font-size="12" font-weight="700">新会话跨会话装配 (Prompt Cache 友好注入模型)</text>
+  <text x="750" y="444" fill="#16a34a" font-size="8.5" font-family="'Geist Mono', monospace">90% Cache 命中 · 降费提速</text>
+
+  <!-- 左侧：MEMORY.md 索引常驻 System Prompt -->
+  <rect x="70" y="475" width="410" height="155" rx="6" fill="rgba(22,163,74,0.04)" stroke="#16a34a" stroke-width="1.2"/>
+  <text x="85" y="498" fill="#166534" font-size="11" font-weight="600">A. 索引常驻 System Prompt (静态前缀)</text>
+  <text x="85" y="520" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace">&lt;memory_index&gt;</text>
+  <text x="100" y="538" fill="#2d3142" font-size="8.5" font-family="'Geist Mono', monospace">- [user-tabs](user-tabs.md) — 缩进必须用 Tab</text>
+  <text x="100" y="556" fill="#2d3142" font-size="8.5" font-family="'Geist Mono', monospace">- [no-db-mock](no-db-mock.md) — 测试勿 mock DB</text>
+  <text x="100" y="574" fill="#2d3142" font-size="8.5" font-family="'Geist Mono', monospace">- [auth-jwt](auth-jwt.md) — 鉴权改用 JWT 网关</text>
+  <text x="85" y="595" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace">&lt;/memory_index&gt;</text>
+  <text x="85" y="618" fill="#166534" font-size="8" font-weight="600">✅ 极高频命中 Prompt Cache 缓存，节约 90% 成本！</text>
+
+  <!-- 右侧：按需读取具体细节 -->
+  <rect x="520" y="475" width="410" height="155" rx="6" fill="#f8f9fa" stroke="rgba(45,49,66,0.15)"/>
+  <text x="535" y="498" fill="#2d3142" font-size="11" font-weight="600">B. 细节内容按需加载 (On-demand Fetch)</text>
+  <text x="535" y="522" fill="#7a8399" font-size="8.5">当 Agent 涉及到具体文件或逻辑时：</text>
+  <text x="535" y="542" fill="#eb6c36" font-size="9" font-family="'Geist Mono', monospace">read_file(".memory/auth-jwt.md")</text>
+  <text x="535" y="565" fill="#4f5d75" font-size="8.5">或者由 Harness 自动匹配动态注入当前 turn。</text>
+  <text x="535" y="595" fill="#2d3142" font-size="9" font-weight="600">🎯 完美兼顾了“全局感知”与“上下文瘦身”！</text>
+
+  <!-- 仓库下发装配连线 -->
+  <path class="active-flow" d="M 500 380 L 500 420" fill="none" stroke="#eb6c36" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+
+</svg>

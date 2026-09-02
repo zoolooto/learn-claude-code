@@ -1,0 +1,146 @@
+<svg viewBox="0 0 1100 800" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="s20-title s20-desc" font-family="'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <title id="s20-title">s20: Comprehensive Agent 全机制大一统循环全景图</title>
+  <desc id="s20-desc">展示 19 个前置 Harness 机制全部收敛挂载回统一 while True 主循环的终极架构全景</desc>
+
+  <style>
+    @keyframes crawlDashes {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: -24; }
+    }
+    @keyframes pulseCore {
+      0%, 100% { filter: drop-shadow(0 0 0px rgba(235,108,54,0)); }
+      50% { filter: drop-shadow(0 0 14px rgba(235,108,54,0.5)); }
+    }
+    .active-flow {
+      stroke-dasharray: 6 4;
+      animation: crawlDashes 1.2s linear infinite;
+    }
+    .core-hub {
+      animation: pulseCore 2.5s ease-in-out infinite;
+    }
+  </style>
+
+  <defs>
+    <pattern id="grid-dots" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="0.85" fill="rgba(45,49,66,0.12)"/>
+    </pattern>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+    </marker>
+    <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#16a34a"/>
+    </marker>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="100%" height="100%" fill="#f5f5f5" rx="8"/>
+  <rect width="100%" height="100%" fill="url(#grid-dots)" opacity="0.6"/>
+
+  <!-- ==================== 1. 顶部：输入与前置净化流 ==================== -->
+  
+  <!-- ① 用户输入 -->
+  <rect x="420" y="25" width="260" height="42" rx="21" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+  <text x="550" y="46" fill="#2d3142" font-size="12" font-weight="600" text-anchor="middle">用户输入 (User Query)</text>
+  <text x="550" y="58" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">query = input(">> ")</text>
+
+  <!-- ② Hook: UserPromptSubmit -->
+  <rect x="370" y="85" width="360" height="46" rx="6" fill="#ffffff" stroke="#4f5d75" stroke-width="1"/>
+  <text x="550" y="105" fill="#2d3142" font-size="10.5" font-weight="600" text-anchor="middle">s04: UserPromptSubmit Hook (输入合规审计与 CWD 注入)</text>
+  <text x="550" y="120" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">trigger_hooks("UserPromptSubmit", query)</text>
+
+  <!-- ③ 异步通知与定时注入 -->
+  <rect x="370" y="150" width="360" height="46" rx="6" fill="#ffffff" stroke="#4f5d75" stroke-width="1"/>
+  <text x="550" y="170" fill="#2d3142" font-size="10.5" font-weight="600" text-anchor="middle">s13/s14: 异步通知注入 (Background Drain &amp; Cron Queue)</text>
+  <text x="550" y="185" fill="#166534" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">注入 &lt;task_notification&gt; 与定时触发事件</text>
+
+  <!-- ④ 上下文四层压缩管线 -->
+  <rect x="370" y="215" width="360" height="46" rx="6" fill="#ffffff" stroke="#4f5d75" stroke-width="1"/>
+  <text x="550" y="235" fill="#2d3142" font-size="10.5" font-weight="600" text-anchor="middle">s08: Context Compact Pipeline (L1裁剪→L2占位→L4摘要)</text>
+  <text x="550" y="250" fill="#eb6c36" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">messages = compact_pipeline(messages)</text>
+
+
+  <!-- ==================== 2. 中枢：动态装配与 LLM 推理 (The Core) ==================== -->
+  
+  <!-- System Prompt 动态装配条 -->
+  <rect x="330" y="280" width="440" height="44" rx="6" fill="rgba(46,90,168,0.06)" stroke="#2e5aa8" stroke-width="1.2"/>
+  <text x="550" y="299" fill="#2e5aa8" font-size="10.5" font-weight="700" text-anchor="middle">s07/s09/s10: System Prompt 动态装配流水线</text>
+  <text x="550" y="314" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">Identity + Environment + s07 Skills + s09 Memory + s19 MCP State</text>
+
+  <!-- 核心 LLM 推理引擎 (带 s11 错误自愈环) -->
+  <g class="core-hub">
+    <rect x="300" y="345" width="500" height="75" rx="10" fill="#ffffff" stroke="#eb6c36" stroke-width="2"/>
+    <rect x="312" y="337" width="170" height="16" rx="2" fill="#eb6c36"/>
+    <text x="397" y="348" fill="#ffffff" font-size="7.5" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle">s01 + s11 CORE LOOP</text>
+    <text x="550" y="375" fill="#eb6c36" font-size="13" font-weight="700" text-anchor="middle">LLM 推理引擎 (with s11 Error Recovery 韧性环)</text>
+    <text x="550" y="395" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">client.messages.create(...) · 429/529 退避降级 · 8K→64K 自动升配</text>
+    <text x="550" y="410" fill="#166534" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">不盲信 stop_reason，精确判定 content 块中是否有 tool_use</text>
+  </g>
+
+
+  <!-- ==================== 3. 分支判定：是否调用工具？ ==================== -->
+  <polygon points="550,440 650,475 550,510 450,475" fill="#ffffff" stroke="#2d3142" stroke-width="1.4"/>
+  <text x="550" y="472" fill="#2d3142" font-size="10.5" font-weight="600" text-anchor="middle">有 tool_use 块?</text>
+  <text x="550" y="485" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">check blocks</text>
+
+  <!-- 否：走 Stop Hook 并退出 -->
+  <path class="active-flow" d="M 450 475 L 220 475 L 220 535" fill="none" stroke="#4f5d75" stroke-width="1.4" marker-end="url(#arrow)"/>
+  <rect x="100" y="535" width="240" height="65" rx="6" fill="#ffffff" stroke="#4f5d75" stroke-width="1"/>
+  <text x="220" y="558" fill="#2d3142" font-size="11" font-weight="600" text-anchor="middle">s04: Stop Hook 完工检查</text>
+  <text x="220" y="575" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">未完工可强制续跑；否则返回最终文本</text>
+
+
+  <!-- ==================== 4. 是：进入工具管线与统一工具池 ==================== -->
+  
+  <!-- 前置权限拦截 -->
+  <path class="active-flow" d="M 650 475 L 850 475 L 850 535" fill="none" stroke="#eb6c36" stroke-width="1.8" marker-end="url(#arrow-accent)"/>
+  
+  <rect x="680" y="535" width="340" height="65" rx="6" fill="#ffffff" stroke="#eb6c36" stroke-width="1.5"/>
+  <rect x="692" y="527" width="160" height="16" rx="2" fill="#eb6c36"/>
+  <text x="772" y="538" fill="#ffffff" font-size="7.5" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle">s03 + s04 权限闸门</text>
+  <text x="850" y="560" fill="#2d3142" font-size="11" font-weight="600" text-anchor="middle">PreToolUse Hook &amp; 3道权限闸门</text>
+  <text x="850" y="578" fill="#eb6c36" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">拦截黑名单 / 破坏性操作 / 越界越权</text>
+
+  <!-- 统一工具池分发 (The Tool Pool) -->
+  <rect x="420" y="630" width="600" height="95" rx="8" fill="#ffffff" stroke="#2d3142" stroke-width="1.4"/>
+  <text x="720" y="652" fill="#2d3142" font-size="11.5" font-weight="700" text-anchor="middle">s02/s19: 统一工具池分发映射 (assemble_tool_pool)</text>
+  
+  <!-- 各工具小标 -->
+  <rect x="435" y="662" width="110" height="24" rx="4" fill="#f8f9fa" stroke="rgba(45,49,66,0.1)"/>
+  <text x="490" y="678" fill="#2d3142" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">s02: 原生读写改</text>
+
+  <rect x="555" y="662" width="110" height="24" rx="4" fill="#f8f9fa" stroke="rgba(45,49,66,0.1)"/>
+  <text x="610" y="678" fill="#2d3142" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">s05: todo_write</text>
+
+  <rect x="675" y="662" width="110" height="24" rx="4" fill="#f8f9fa" stroke="rgba(45,49,66,0.1)"/>
+  <text x="730" y="678" fill="#2d3142" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">s06: subagent</text>
+
+  <rect x="795" y="662" width="105" height="24" rx="4" fill="#f8f9fa" stroke="rgba(45,49,66,0.1)"/>
+  <text x="847" y="678" fill="#2d3142" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">s12: tasks DAG</text>
+
+  <rect x="910" y="662" width="100" height="24" rx="4" fill="#f8f9fa" stroke="rgba(45,49,66,0.1)"/>
+  <text x="960" y="678" fill="#eb6c36" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">s19: MCP 工具</text>
+
+  <text x="720" y="708" fill="#166534" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">s18 Worktree 目录沙箱自动重定向 · s13 后台慢操作非阻塞分发</text>
+
+
+  <!-- ==================== 5. 循环回灌连线 ==================== -->
+  <!-- 顶部下行连线 -->
+  <line class="active-flow" x1="550" y1="67" x2="550" y2="85" stroke="#4f5d75" stroke-width="1.4" marker-end="url(#arrow)"/>
+  <line class="active-flow" x1="550" y1="131" x2="550" y2="150" stroke="#4f5d75" stroke-width="1.4" marker-end="url(#arrow)"/>
+  <line class="active-flow" x1="550" y1="196" x2="550" y2="215" stroke="#4f5d75" stroke-width="1.4" marker-end="url(#arrow)"/>
+  <line class="active-flow" x1="550" y1="261" x2="550" y2="280" stroke="#4f5d75" stroke-width="1.4" marker-end="url(#arrow)"/>
+  <line class="active-flow" x1="550" y1="324" x2="550" y2="345" stroke="#eb6c36" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+  <line class="active-flow" x1="550" y1="420" x2="550" y2="440" stroke="#eb6c36" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+
+  <!-- 工具执行到工具池 -->
+  <line class="active-flow" x1="850" y1="600" x2="850" y2="630" stroke="#eb6c36" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+
+  <!-- 大闭环：工具执行结果回灌 messages[] 并进入下一轮 -->
+  <path class="active-flow" d="M 420 680 L 40 680 L 40 173 L 370 173" fill="none" stroke="#eb6c36" stroke-width="2" marker-end="url(#arrow-accent)"/>
+  <rect x="45" y="400" width="105" height="18" rx="2" fill="#ffffff" stroke="#eb6c36" stroke-width="1"/>
+  <text x="97" y="412" fill="#eb6c36" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" font-weight="700">Loop Back (Next Turn)</text>
+
+</svg>

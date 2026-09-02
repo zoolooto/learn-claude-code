@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "s14 Cron 调度器 — 四层解耦架构",
+    "locale": "zh-CN",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "register",
+      "type": "backend",
+      "label": "schedule_job",
+      "sublabel": "schedule_cron 工具",
+      "pos": [48, 220],
+      "size": [128, 58]
+    },
+    {
+      "id": "storage",
+      "type": "database",
+      "label": "scheduled_jobs",
+      "sublabel": ".scheduled_tasks.json",
+      "pos": [48, 340],
+      "size": [128, 58]
+    },
+    {
+      "id": "scheduler",
+      "type": "backend",
+      "label": "cron_scheduler_loop",
+      "sublabel": "daemon · 1s 轮询",
+      "pos": [248, 220],
+      "size": [128, 58]
+    },
+    {
+      "id": "queue",
+      "type": "messagebus",
+      "label": "cron_queue",
+      "sublabel": "queue_processor",
+      "pos": [448, 220],
+      "size": [128, 58]
+    },
+    {
+      "id": "agent",
+      "type": "cloud",
+      "label": "agent_loop",
+      "sublabel": "inject + LLM",
+      "pos": [648, 220],
+      "size": [128, 58]
+    },
+    {
+      "id": "user",
+      "type": "external",
+      "label": "User / REPL",
+      "sublabel": "agent_lock 互斥",
+      "pos": [648, 340],
+      "size": [128, 58]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "s14 进程 · 三 daemon 线程",
+      "wraps": ["register", "storage", "scheduler", "queue", "agent", "user"]
+    }
+  ],
+  "connections": [
+    {
+      "id": "persist",
+      "from": "register",
+      "to": "storage",
+      "label": "durable 持久化",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24
+    },
+    {
+      "id": "to-scheduler",
+      "from": "register",
+      "to": "scheduler",
+      "label": "注册任务",
+      "variant": "default"
+    },
+    {
+      "id": "fire",
+      "from": "scheduler",
+      "to": "queue",
+      "label": "cron fire → append",
+      "variant": "emphasis",
+      "labelDy": 53
+    },
+    {
+      "id": "deliver",
+      "from": "queue",
+      "to": "agent",
+      "label": "空闲时 deliver",
+      "variant": "emphasis",
+      "labelDy": 53
+    },
+    {
+      "id": "user-turn",
+      "from": "user",
+      "to": "agent",
+      "label": "用户输入回合",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "load",
+      "from": "storage",
+      "to": "scheduler",
+      "label": "启动加载",
+      "variant": "dashed",
+      "fromSide": "right",
+      "toSide": "bottom"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "violet",
+      "title": "四层职责",
+      "items": [
+        "调度：cron_matches + _last_fired 防重复",
+        "队列：cron_lock 解耦调度与 Agent",
+        "投递：queue_processor 每 0.2s 检测 agent_lock"
+      ]
+    }
+  ]
+}

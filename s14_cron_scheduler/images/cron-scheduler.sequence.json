@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "s14 Cron 调度器 — 端到端时序（code.py）",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "column_fit": "spread",
+    "viewBox": [1040, 660]
+  },
+  "participants": [
+    { "id": "repl", "type": "external", "label": "Main REPL", "sublabel": "主线程" },
+    { "id": "agent", "type": "backend", "label": "agent_loop", "sublabel": "run_agent_turn" },
+    { "id": "sched", "type": "backend", "label": "scheduler", "sublabel": "sleep(1)" },
+    { "id": "proc", "type": "backend", "label": "processor", "sublabel": "sleep(0.2)" },
+    { "id": "store", "type": "database", "label": "job_store", "sublabel": ".scheduled_tasks" },
+    { "id": "queue", "type": "messagebus", "label": "cron_queue", "sublabel": "cron_lock" },
+    { "id": "llm", "type": "cloud", "label": "Anthropic", "sublabel": "MODEL_ID" }
+  ],
+  "segments": [
+    { "from": 160, "to": 280, "label": "注册" },
+    { "from": 296, "to": 408, "label": "触发" },
+    { "from": 424, "to": 568, "label": "投递执行" }
+  ],
+  "messages": [
+    { "from": "store", "to": "sched", "y": 172, "label": "load_durable_jobs()", "variant": "dashed" },
+    { "from": "repl", "to": "agent", "y": 200, "label": "schedule_cron → schedule_job", "variant": "emphasis" },
+    { "from": "agent", "to": "store", "y": 228, "label": "validate_cron + save_durable", "variant": "default" },
+    { "from": "agent", "to": "repl", "y": 256, "label": "返回 cron_id", "variant": "return" },
+    { "from": "sched", "to": "store", "y": 312, "label": "遍历 scheduled_jobs", "variant": "default" },
+    { "from": "sched", "to": "queue", "y": 340, "label": "cron_matches → append", "variant": "emphasis" },
+    { "from": "sched", "to": "store", "y": 368, "label": "_last_fired / one-shot pop", "variant": "dashed" },
+    { "from": "proc", "to": "queue", "y": 412, "label": "has_cron_queue()", "variant": "default" },
+    { "from": "proc", "to": "agent", "y": 440, "label": "agent_lock.acquire(False)", "variant": "security" },
+    { "from": "proc", "to": "agent", "y": 468, "label": "run_agent_turn_locked()", "variant": "emphasis" },
+    { "from": "agent", "to": "queue", "y": 496, "label": "consume_cron_queue()", "variant": "emphasis" },
+    { "from": "agent", "to": "llm", "y": 524, "label": "[Scheduled] + messages.create", "variant": "emphasis" },
+    { "from": "llm", "to": "agent", "y": 552, "label": "tool_use / end_turn", "variant": "return" },
+    { "from": "agent", "to": "repl", "y": 556, "label": "execute_tool 循环", "variant": "dashed" }
+  ],
+  "activations": [
+    { "participant": "sched", "from": 164, "to": 376, "type": "backend" },
+    { "participant": "proc", "from": 404, "to": 568, "type": "backend" },
+    { "participant": "agent", "from": 192, "to": 568, "type": "backend" },
+    { "participant": "store", "from": 164, "to": 236, "type": "database" },
+    { "participant": "store", "from": 304, "to": 374, "type": "database" },
+    { "participant": "queue", "from": 332, "to": 508, "type": "messagebus" },
+    { "participant": "llm", "from": 516, "to": 560, "type": "cloud" }
+  ]
+}

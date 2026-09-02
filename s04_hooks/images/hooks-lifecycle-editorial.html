@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>s04: 生命周期与 Hook 拦截全景图 · Diagram Design</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper: #f5f5f5;
+      --color-paper-2: #ececec;
+      --color-ink: #2d3142;
+      --color-muted: #4f5d75;
+      --color-soft: #7a8399;
+      --color-rule: rgba(45, 49, 66, 0.12);
+      --color-rule-solid: #bfc0c0;
+      --color-accent: #eb6c36;
+      --color-accent-tint: rgba(235, 108, 54, 0.08);
+      --color-link: #2e5aa8;
+      --font-sans: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-serif: 'Instrument Serif', Georgia, serif;
+      --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, monospace;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      min-height: 100vh;
+      padding: 2.5rem 1.5rem;
+      color: var(--color-ink);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      margin-bottom: 2rem;
+    }
+
+    .header-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(2rem, 3.5vw + 1rem, 2.8rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      margin-bottom: 0.6rem;
+      color: var(--color-ink);
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: var(--color-muted);
+      max-width: 75ch;
+    }
+
+    .quote-banner {
+      margin-top: 1rem;
+      display: inline-block;
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 1.1rem;
+      color: var(--color-accent);
+      background: var(--color-accent-tint);
+      padding: 0.4rem 0.8rem;
+      border-radius: 4px;
+      border-left: 3px solid var(--color-accent);
+    }
+
+    .diagram-card {
+      background: var(--color-paper-2);
+      border-radius: 12px;
+      border: 1px solid var(--color-rule);
+      padding: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+      overflow-x: auto;
+    }
+
+    svg {
+      width: 100%;
+      min-width: 980px;
+      height: auto;
+      display: block;
+    }
+
+    /* 4-Hook Explanatory Cards */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-top: 1.75rem;
+    }
+
+    @media (max-width: 900px) {
+      .cards-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 580px) {
+      .cards-grid { grid-template-columns: 1fr; }
+    }
+
+    .hook-card {
+      background: #ffffff;
+      border-radius: 8px;
+      border: 1px solid var(--color-rule);
+      padding: 1.2rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hook-card.accent-border {
+      border-top: 3px solid var(--color-accent);
+    }
+
+    .hook-card.neutral-border {
+      border-top: 3px solid var(--color-muted);
+    }
+
+    .hook-tag {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+
+    .hook-tag.accent { color: var(--color-accent); }
+    .hook-tag.muted { color: var(--color-muted); }
+
+    .hook-card h3 {
+      font-size: 0.92rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      font-family: var(--font-mono);
+      color: var(--color-ink);
+    }
+
+    .hook-card p {
+      font-size: 0.8rem;
+      line-height: 1.5;
+      color: var(--color-muted);
+      flex-grow: 1;
+    }
+
+    .hook-card .action-spec {
+      margin-top: 0.8rem;
+      padding-top: 0.6rem;
+      border-top: 1px solid rgba(45, 49, 66, 0.08);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--color-soft);
+    }
+
+    .footer {
+      margin-top: 2rem;
+      padding-top: 1.2rem;
+      border-top: 1px solid var(--color-rule);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--color-soft);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <p class="header-eyebrow">Learn Claude Code · Harness Engineering · Stage 1</p>
+      <h1>s04: 生命周期与 Hook 拦截全景图</h1>
+      <p class="subtitle">
+        展示用户指令从输入、环境上下文注入、LLM 推理、4 大 Hook 拦截点（UserPromptSubmit / PreToolUse / PostToolUse / Stop）到工具分发与闭环回灌的完整执行路径。
+      </p>
+      <div class="quote-banner">
+        "挂在循环上，不写进循环里 —— 扩展点不侵入核心主循环"
+      </div>
+    </header>
+
+    <main class="diagram-card">
+      <svg viewBox="0 0 1100 780" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="s04-title s04-desc">
+        <title id="s04-title">s04 生命周期与 Hook 拦截全景图</title>
+        <desc id="s04-desc">完整的 Agent 循环流程图，包含 UserPromptSubmit, PreToolUse, PostToolUse, Stop 四个 Hook 节点与分发逻辑</desc>
+        
+        <defs>
+          <!-- 点阵背景 -->
+          <pattern id="grid-dots" width="20" height="20" patternUnits="userSpaceOnUse">
+            <circle cx="2" cy="2" r="0.85" fill="rgba(45,49,66,0.12)"/>
+          </pattern>
+
+          <!-- 箭头定义 -->
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+          </marker>
+          <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/>
+          </marker>
+          <marker id="arrow-soft" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#7a8399"/>
+          </marker>
+        </defs>
+
+        <!-- 底层背景 -->
+        <rect width="100%" height="100%" fill="#f5f5f5" rx="8"/>
+        <rect width="100%" height="100%" fill="url(#grid-dots)" opacity="0.6"/>
+
+        <!-- ==================== 1. 连线与箭头 (放在底层) ==================== -->
+        
+        <!-- 用户输入 -> UserPromptSubmit -->
+        <line x1="550" y1="74" x2="550" y2="105" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+        <!-- UserPromptSubmit -> LLM 推理 -->
+        <line x1="550" y1="157" x2="550" y2="190" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+        <!-- LLM 推理 -> 判定菱形 -->
+        <line x1="550" y1="244" x2="550" y2="277" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+        <!-- 判定菱形 [NO / 准备退出] -> Stop Hook -->
+        <path d="M 455 315 L 240 315 L 240 375" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+        <!-- Stop Hook -> 正常退出 -->
+        <line x1="240" y1="435" x2="240" y2="495" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+        <!-- Stop Hook -> 强制续跑分支 (Force Continuation) -->
+        <path d="M 100 405 L 45 405 L 45 217 L 360 217" fill="none" stroke="#7a8399" stroke-width="1.2" stroke-dasharray="5 3" marker-end="url(#arrow-soft)"/>
+
+        <!-- 判定菱形 [YES / 工具调用] -> PreToolUse Hook (重点路径) -->
+        <path d="M 645 315 L 850 315 L 850 375" fill="none" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+
+        <!-- PreToolUse 放行 -> 执行工具 -->
+        <line x1="850" y1="435" x2="850" y2="475" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+
+        <!-- PreToolUse 拦截 -> 绕过执行直接生成 tool_result -->
+        <path d="M 990 405 L 1035 405 L 1035 675 L 990 675" fill="none" stroke="#7a8399" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#arrow-soft)"/>
+
+        <!-- 执行工具 -> PostToolUse Hook -->
+        <line x1="850" y1="531" x2="850" y2="565" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+        <!-- PostToolUse Hook -> 组装 tool_result -->
+        <line x1="850" y1="621" x2="850" y2="650" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+        <!-- 组装 tool_result -> 循环回灌 (Loop Back to LLM) -->
+        <path d="M 850 700 L 850 735 L 490 735 L 490 250 L 515 250" fill="none" stroke="#eb6c36" stroke-width="1.4" stroke-dasharray="6 3" marker-end="url(#arrow-accent)"/>
+
+
+        <!-- ==================== 2. 连线文字标签 (Arrow Badges) ==================== -->
+        
+        <!-- NO 分支标签 -->
+        <rect x="300" y="306" width="105" height="18" rx="3" fill="#ffffff" stroke="var(--color-rule)" stroke-width="0.8"/>
+        <text x="352" y="318" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle" font-weight="500">无 tool_use (退出)</text>
+
+        <!-- YES 分支标签 (Accent) -->
+        <rect x="690" y="306" width="105" height="18" rx="3" fill="#ffffff" stroke="#eb6c36" stroke-width="1"/>
+        <text x="742" y="318" fill="#eb6c36" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle" font-weight="600">有 tool_use 块</text>
+
+        <!-- 强制续跑标签 -->
+        <rect x="52" y="275" width="100" height="16" rx="2" fill="#ffffff" stroke="var(--color-rule)" stroke-width="0.8"/>
+        <text x="102" y="286" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">强制续跑 (Inject Msg)</text>
+
+        <!-- 放行标签 -->
+        <rect x="856" y="445" width="46" height="16" rx="2" fill="#ffffff" stroke="#eb6c36" stroke-width="0.8"/>
+        <text x="879" y="456" fill="#eb6c36" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" font-weight="600">放行</text>
+
+        <!-- 拦截旁路标签 -->
+        <rect x="980" y="535" width="90" height="16" rx="2" fill="#ffffff" stroke="var(--color-rule)" stroke-width="0.8"/>
+        <text x="1025" y="546" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">拦截 (Denied)</text>
+
+        <!-- 循环回流标签 -->
+        <rect x="635" y="726" width="80" height="18" rx="3" fill="#ffffff" stroke="#eb6c36" stroke-width="1"/>
+        <text x="675" y="738" fill="#eb6c36" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle" font-weight="600">下一轮循环</text>
+
+
+        <!-- ==================== 3. 核心节点渲染 ==================== -->
+
+        <!-- ① 用户输入 Query (Oval) -->
+        <g id="node-user-input">
+          <rect x="440" y="32" width="220" height="42" rx="21" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+          <text x="550" y="52" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">用户输入 query</text>
+          <text x="550" y="65" fill="#7a8399" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">query = input(">> ")</text>
+        </g>
+
+        <!-- ② Hook 1: UserPromptSubmit (Rectangle with Badge) -->
+        <g id="hook-user-prompt">
+          <rect x="370" y="105" width="360" height="52" rx="6" fill="#ffffff" stroke="#4f5d75" stroke-width="1"/>
+          <!-- 顶部小标 -->
+          <rect x="382" y="97" width="130" height="16" rx="2" fill="#ececec" stroke="#4f5d75" stroke-width="0.8"/>
+          <text x="447" y="108" fill="#2d3142" font-size="7.5" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HOOK: UserPromptSubmit</text>
+          <text x="550" y="129" fill="#2d3142" font-size="11.5" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">注入环境上下文 · 审计用户输入</text>
+          <text x="550" y="145" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">trigger_hooks("UserPromptSubmit", query)</text>
+        </g>
+
+        <!-- ③ LLM 推理 (Action Box) -->
+        <g id="node-llm">
+          <rect x="360" y="190" width="380" height="54" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1.4"/>
+          <text x="550" y="214" fill="#2d3142" font-size="13" font-weight="700" font-family="'Geist', sans-serif" text-anchor="middle">LLM 推理 (client.messages.create)</text>
+          <text x="550" y="232" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">messages + tools + system prompt → response</text>
+        </g>
+
+        <!-- ④ 判定菱形 (Decision Diamond) -->
+        <g id="node-decision">
+          <polygon points="550,277 645,315 550,353 455,315" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+          <text x="550" y="312" fill="#2d3142" font-size="10.5" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">包含 tool_use 块?</text>
+          <text x="550" y="325" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">stop_reason == "tool_use"</text>
+        </g>
+
+        <!-- ⑤ Hook 4: Stop (Left Column) -->
+        <g id="hook-stop">
+          <rect x="100" y="375" width="280" height="60" rx="6" fill="#ffffff" stroke="#4f5d75" stroke-width="1"/>
+          <rect x="112" y="367" width="86" height="16" rx="2" fill="#ececec" stroke="#4f5d75" stroke-width="0.8"/>
+          <text x="155" y="378" fill="#2d3142" font-size="7.5" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HOOK: Stop</text>
+          <text x="240" y="401" fill="#2d3142" font-size="11.5" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">会话统计 · 完工检查</text>
+          <text x="240" y="418" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">返回值 != None 可强制续跑</text>
+        </g>
+
+        <!-- ⑥ 退出节点 (End Oval) -->
+        <g id="node-exit">
+          <rect x="130" y="495" width="220" height="42" rx="21" fill="rgba(45,49,66,0.04)" stroke="rgba(45,49,66,0.3)" stroke-width="1"/>
+          <text x="240" y="515" fill="#2d3142" font-size="11.5" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">退出循环 · 返回文本结果</text>
+          <text x="240" y="528" fill="#7a8399" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">return to user</text>
+        </g>
+
+        <!-- ⑦ Hook 2: PreToolUse (Focal Accent Node on Right) -->
+        <g id="hook-pre-tool">
+          <rect x="710" y="375" width="280" height="60" rx="6" fill="#ffffff" stroke="#eb6c36" stroke-width="1.5"/>
+          <rect x="722" y="367" width="116" height="16" rx="2" fill="#eb6c36" stroke="#eb6c36" stroke-width="0.8"/>
+          <text x="780" y="378" fill="#ffffff" font-size="7.5" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HOOK: PreToolUse</text>
+          <text x="850" y="401" fill="#2d3142" font-size="11.5" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">权限拦截 (3道闸门) · 审计日志</text>
+          <text x="850" y="418" fill="#eb6c36" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">permission_hook / log_hook</text>
+        </g>
+
+        <!-- ⑧ 执行工具 (Tool Dispatch Handlers) -->
+        <g id="node-tool-exec">
+          <rect x="710" y="475" width="280" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+          <text x="850" y="499" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">执行工具 (TOOL_HANDLERS)</text>
+          <text x="850" y="517" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">run_bash · read · write · edit · glob</text>
+        </g>
+
+        <!-- ⑨ Hook 3: PostToolUse -->
+        <g id="hook-post-tool">
+          <rect x="710" y="565" width="280" height="56" rx="6" fill="#ffffff" stroke="#4f5d75" stroke-width="1"/>
+          <rect x="722" y="557" width="122" height="16" rx="2" fill="#ececec" stroke="#4f5d75" stroke-width="0.8"/>
+          <text x="783" y="568" fill="#2d3142" font-size="7.5" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HOOK: PostToolUse</text>
+          <text x="850" y="589" fill="#2d3142" font-size="11.5" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">输出大小监控 · 自动副作用</text>
+          <text x="850" y="606" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">large_output_hook · auto_git_add</text>
+        </g>
+
+        <!-- ⑩ 组装 tool_result 回 messages[] -->
+        <g id="node-result-append">
+          <rect x="710" y="650" width="280" height="50" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+          <text x="850" y="671" fill="#2d3142" font-size="11.5" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">将 tool_result 喂回 messages[]</text>
+          <text x="850" y="688" fill="#7a8399" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">messages.append({"role": "user", ...})</text>
+        </g>
+
+      </svg>
+    </main>
+
+    <!-- 底部 4 大 Hook 机制说明卡片 -->
+    <section class="cards-grid">
+      <div class="hook-card neutral-border">
+        <span class="hook-tag muted">Event 01</span>
+        <h3>UserPromptSubmit</h3>
+        <p>用户输入提交后、进入 LLM 前触发。用于校验用户 Prompt、注入当前工作目录（CWD）及环境元数据，不污染用户原始输入。</p>
+        <div class="action-spec">trigger_hooks("UserPromptSubmit", query)</div>
+      </div>
+
+      <div class="hook-card accent-border">
+        <span class="hook-tag accent">Event 02 · 核心防护</span>
+        <h3>PreToolUse</h3>
+        <p>工具执行前触发。将 s03 的三道权限闸门（硬黑名单、高危指令、用户二次确认）与调用日志以 Hook 形式挂载。返回非空直接熔断拦截。</p>
+        <div class="action-spec">blocked = trigger_hooks("PreToolUse", block)</div>
+      </div>
+
+      <div class="hook-card neutral-border">
+        <span class="hook-tag muted">Event 03</span>
+        <h3>PostToolUse</h3>
+        <p>工具执行成功后触发。用于感知工具输出尺寸（大文本告警）、执行耗时度量，或触发自动 <code>git add</code> 等副作用逻辑。</p>
+        <div class="action-spec">trigger_hooks("PostToolUse", block, output)</div>
+      </div>
+
+      <div class="hook-card neutral-border">
+        <span class="hook-tag muted">Event 04 · 闭环防护</span>
+        <h3>Stop</h3>
+        <p>模型未调用工具准备退出时触发。可打印 Token/调用统计；若返回非空消息，将强制将消息注入对话中驱动 Agent 续跑自愈。</p>
+        <div class="action-spec">force = trigger_hooks("Stop", messages)</div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div>Designed with <strong>Diagram Design</strong> · Editorial System</div>
+      <div>Source: <code>s04_hooks/code.py</code></div>
+    </footer>
+  </div>
+</body>
+</html>

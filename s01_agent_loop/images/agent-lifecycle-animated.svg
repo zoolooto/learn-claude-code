@@ -1,0 +1,87 @@
+<svg viewBox="0 0 1000 680" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="s01-title s01-desc" font-family="'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <title id="s01-title">s01: The Agent Loop 最小内核循环拓扑图</title>
+  <desc id="s01-desc">展示基于 while True、tool_use 判定与 tool_result 回灌的最小可运行 Agent Harness 内核</desc>
+
+  <style>
+    @keyframes crawlDashes {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: -24; }
+    }
+    @keyframes pulseLoop {
+      0%, 100% { filter: drop-shadow(0 0 0px rgba(235,108,54,0)); }
+      50% { filter: drop-shadow(0 0 10px rgba(235,108,54,0.45)); }
+    }
+    .active-flow {
+      stroke-dasharray: 6 4;
+      animation: crawlDashes 1.2s linear infinite;
+    }
+    .loop-glow {
+      animation: pulseLoop 2.5s ease-in-out infinite;
+    }
+  </style>
+
+  <defs>
+    <pattern id="grid-dots" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="0.85" fill="rgba(45,49,66,0.12)"/>
+    </pattern>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+    </marker>
+    <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#16a34a"/>
+    </marker>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="100%" height="100%" fill="#f5f5f5" rx="8"/>
+  <rect width="100%" height="100%" fill="url(#grid-dots)" opacity="0.6"/>
+
+  <!-- 1. 用户输入 -->
+  <rect x="360" y="30" width="280" height="42" rx="21" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+  <text x="500" y="51" fill="#2d3142" font-size="12" font-weight="600" text-anchor="middle">用户输入 query</text>
+  <text x="500" y="64" fill="#7a8399" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">messages = [{"role": "user", "content": query}]</text>
+
+  <!-- 2. LLM 推理 -->
+  <g class="loop-glow">
+    <rect x="300" y="110" width="400" height="70" rx="8" fill="#ffffff" stroke="#eb6c36" stroke-width="1.8"/>
+    <text x="500" y="138" fill="#eb6c36" font-size="13" font-weight="700" text-anchor="middle">LLM 推理 (client.messages.create)</text>
+    <text x="500" y="158" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">tools=[bash] · model 决策是否需要采取行动</text>
+  </g>
+
+  <!-- 3. 判定菱形 -->
+  <polygon points="500,220 600,255 500,290 400,255" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+  <text x="500" y="252" fill="#2d3142" font-size="11" font-weight="600" text-anchor="middle">调用了 bash 工具?</text>
+  <text x="500" y="266" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">stop_reason == "tool_use"</text>
+
+  <!-- 否：直接返回最终文本 -->
+  <path class="active-flow" d="M 400 255 L 200 255 L 200 350" fill="none" stroke="#4f5d75" stroke-width="1.4" marker-end="url(#arrow)"/>
+  <rect x="80" y="350" width="240" height="60" rx="6" fill="#ffffff" stroke="#4f5d75" stroke-width="1"/>
+  <text x="200" y="375" fill="#2d3142" font-size="11" font-weight="600" text-anchor="middle">任务完成 · 返回最终回答</text>
+  <text x="200" y="392" fill="#7a8399" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">return to user (循环退出)</text>
+
+  <!-- 是：执行 bash 工具 -->
+  <path class="active-flow" d="M 600 255 L 800 255 L 800 350" fill="none" stroke="#eb6c36" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+  
+  <rect x="660" y="350" width="280" height="65" rx="6" fill="#ffffff" stroke="#eb6c36" stroke-width="1.4"/>
+  <text x="800" y="375" fill="#eb6c36" font-size="11.5" font-weight="700" text-anchor="middle">执行 run_bash(command)</text>
+  <text x="800" y="395" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">捕获 stdout + stderr 输出 (上限 50k 字符)</text>
+
+  <!-- 4. 组装 tool_result -->
+  <rect x="660" y="460" width="280" height="60" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+  <text x="800" y="485" fill="#2d3142" font-size="11" font-weight="600" text-anchor="middle">包装为 tool_result 消息</text>
+  <text x="800" y="502" fill="#16a34a" font-size="8.5" font-family="'Geist Mono', monospace" text-anchor="middle">messages.append({"role": "user", ...})</text>
+
+  <!-- 5. 循环回灌 -->
+  <path class="active-flow" d="M 800 520 L 800 580 L 500 580 L 500 190" fill="none" stroke="#eb6c36" stroke-width="1.8" marker-end="url(#arrow-accent)"/>
+  <rect x="620" y="571" width="105" height="18" rx="2" fill="#ffffff" stroke="#eb6c36" stroke-width="1"/>
+  <text x="672" y="583" fill="#eb6c36" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" font-weight="700">Loop Back (下一轮)</text>
+
+  <!-- 连线 -->
+  <line class="active-flow" x1="500" y1="72" x2="500" y2="110" stroke="#4f5d75" stroke-width="1.4" marker-end="url(#arrow)"/>
+  <line class="active-flow" x1="500" y1="180" x2="500" y2="220" stroke="#eb6c36" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+  <line class="active-flow" x1="800" y1="415" x2="800" y2="460" stroke="#eb6c36" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+
+</svg>
